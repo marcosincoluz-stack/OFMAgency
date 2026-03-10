@@ -68,12 +68,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.locale = pathLocale || resolvedLocale;
   context.locals.market = market;
 
-  if (pathname === '/') {
+  // In prerendered/static builds, avoid generating HTML redirect pages
+  // (they show "Redirecting to /es" and add visual delay on first load).
+  if (!isPrerendered && pathname === '/') {
     return context.redirect(`/${resolvedLocale}`, 302);
   }
 
   // Legacy compatibility: non-prefixed routes always map to /es/*
-  if (!pathLocale && !isBypassPath(pathname)) {
+  if (!isPrerendered && !pathLocale && !isBypassPath(pathname)) {
     return context.redirect(withLocale(pathname, DEFAULT_LOCALE), 302);
   }
 
