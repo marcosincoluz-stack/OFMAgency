@@ -1,0 +1,96 @@
+---
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { ServiceHero } from '@/components/sections/service-hero';
+import { ServiceWhatYouGet } from '@/components/sections/service-what-you-get';
+import { Process } from '@/components/sections/process';
+import { ServiceFeaturedWork } from '@/components/sections/service-featured-work';
+import { Testimonials } from '@/components/sections/testimonials';
+import { Cta } from '@/components/sections/cta';
+import {
+  BrandIdentityIcon,
+  DiamondShapesIcon,
+  DropletIcon,
+  LogoDesignIcon,
+} from '@/components/icons/service-icons';
+import {
+  getServiceBySlug,
+  getServiceSlugs,
+  resolveFeaturedWork,
+} from '@/lib/services';
+import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/lib/i18n';
+import { getDictionary } from '@/lib/i18n-dictionary';
+import type { ServiceFrontmatter } from '@/lib/types';
+
+const iconMap = {
+  LogoDesignIcon,
+  BrandIdentityIcon,
+  DropletIcon,
+  DiamondShapesIcon,
+};
+
+export async function getStaticPaths() {
+  const paths = [];
+
+  for (const locale of SUPPORTED_LOCALES) {
+    const slugs = await getServiceSlugs(locale);
+    for (const slug of slugs) {
+      paths.push({ params: { locale, slug } });
+    }
+  }
+
+  return paths;
+}
+
+const localeParam = Astro.params.locale;
+const slug = Astro.params.slug;
+
+if (!isLocale(localeParam) || !slug) {
+  return Astro.redirect('/es', 302);
+}
+
+const locale: Locale = localeParam;
+const dict = getDictionary(locale);
+
+const entry = await getServiceBySlug(locale, slug);
+
+if (!entry) {
+  return Astro.redirect(`/${locale}/services`, 302);
+}
+
+const frontmatter = entry.frontmatter as ServiceFrontmatter;
+
+const mappedWhatYouGet = frontmatter.whatYouGet.map((item) => ({
+  ...item,
+  icon: iconMap[item.icon as keyof typeof iconMap] || LogoDesignIcon,
+}));
+
+const featuredWorkItems = await resolveFeaturedWork(locale, frontmatter);
+
+const pageTitle = `${frontmatter.pageTitle} | Velour`;
+const pageDescription = frontmatter.description;
+---
+
+<DefaultLayout locale={locale} title={pageTitle} description={pageDescription}>
+  <ServiceHero title={frontmatter.pageTitle} image={frontmatter.heroImage} />
+
+  <section class="section-padding container grid gap-10 md:grid-cols-2">
+    <h2 class="text-4xl">{frontmatter.title}</h2>
+    <p class="text-muted-foreground text-lg">
+      {frontmatter.description}
+    </p>
+  </section>
+
+  <ServiceWhatYouGet items={mappedWhatYouGet} locale={locale} />
+
+  <Process
+    title={`${frontmatter.title} ${dict.serviceDetail.processSuffix}`}
+    steps={frontmatter.process}
+    client:idle
+  />
+
+  <ServiceFeaturedWork items={featuredWorkItems} locale={locale} />
+
+  <Testimonials locale={locale} />
+
+  <Cta locale={locale} />
+</DefaultLayout>

@@ -1,0 +1,81 @@
+---
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { ProjectHero } from '@/components/sections/project-hero';
+import { ProjectOverview } from '@/components/sections/project-overview';
+import { ProjectGallery } from '@/components/sections/project-gallery';
+import { Process } from '@/components/sections/process';
+import { Cta } from '@/components/sections/cta';
+import { getProjectBySlug, getProjectSlugs } from '@/lib/projects';
+import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/lib/i18n';
+import { getDictionary } from '@/lib/i18n-dictionary';
+
+export async function getStaticPaths() {
+  const paths = [];
+
+  for (const locale of SUPPORTED_LOCALES) {
+    const slugs = await getProjectSlugs(locale);
+    for (const slug of slugs) {
+      paths.push({ params: { locale, slug } });
+    }
+  }
+
+  return paths;
+}
+
+const localeParam = Astro.params.locale;
+const slug = Astro.params.slug;
+
+if (!isLocale(localeParam) || !slug) {
+  return Astro.redirect('/es', 302);
+}
+
+const locale: Locale = localeParam;
+const dict = getDictionary(locale);
+
+const project = await getProjectBySlug(locale, slug);
+
+if (!project) {
+  return Astro.redirect(`/${locale}/projects`, 302);
+}
+
+const frontmatter = project.frontmatter;
+
+const heroImage = frontmatter.images[0];
+const galleryImages = frontmatter.images.slice(1);
+
+const pageTitle = `${frontmatter.name} | Velour`;
+const pageDescription =
+  frontmatter.description ||
+  (locale === 'es'
+    ? `Conoce el caso de ${frontmatter.name} de Velour.`
+    : `Explore the ${frontmatter.name} case study by Velour.`);
+---
+
+<DefaultLayout locale={locale} title={pageTitle} description={pageDescription}>
+  <ProjectHero title={frontmatter.name} image={heroImage} />
+
+  <ProjectOverview
+    title={dict.serviceDetail.projectOverview}
+    description={frontmatter.description}
+    project={frontmatter}
+    locale={locale}
+  />
+
+  {galleryImages.length >= 2 && (
+    <ProjectGallery images={galleryImages.slice(0, 2)} />
+  )}
+
+  {frontmatter.process && frontmatter.process.length > 0 && (
+    <Process
+      title={`${frontmatter.name} ${dict.serviceDetail.processSuffix}`}
+      steps={frontmatter.process}
+      client:idle
+    />
+  )}
+
+  {galleryImages.length >= 4 && (
+    <ProjectGallery images={galleryImages.slice(2, 4)} />
+  )}
+
+  <Cta locale={locale} />
+</DefaultLayout>

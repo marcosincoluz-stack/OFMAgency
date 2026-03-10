@@ -21,10 +21,11 @@ import {
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel';
+import type { Locale } from '@/lib/i18n';
+import { getDictionary } from '@/lib/i18n-dictionary';
 import { cn } from '@/lib/utils';
 import type { ProjectFrontmatter } from '@/lib/types';
 
-// Logo mapping
 const logoMap = {
   Logo1,
   Logo2,
@@ -41,14 +42,17 @@ export function CaseStudyCarousel({
   project,
   useIcon,
   hidePrevItem,
+  locale = 'es',
 }: {
   project: ProjectFrontmatter;
   useIcon: boolean;
   hidePrevItem?: boolean;
+  locale?: Locale;
 }) {
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
   const [isMoving, setIsMoving] = React.useState(false);
+  const dict = getDictionary(locale);
 
   const ProjectLogo = logoMap[project.logo as keyof typeof logoMap] || Logo1;
 
@@ -56,7 +60,6 @@ export function CaseStudyCarousel({
   const scrollNext = () => api?.scrollNext();
   const scrollTo = (index: number) => api?.scrollTo(index);
 
-  // Update current slide when carousel changes
   React.useEffect(() => {
     if (!api) return;
 
@@ -72,7 +75,7 @@ export function CaseStudyCarousel({
       setIsMoving(false);
     };
 
-    onSelect(); // Set initial state
+    onSelect();
     api.on('select', onSelect);
     api.on('scroll', onScroll);
     api.on('settle', onSettle);
@@ -117,7 +120,6 @@ export function CaseStudyCarousel({
                   prevIndex === index && hidePrevItem ? '2xl:opacity-0' : '',
                 )}
               >
-                {/* Text Content */}
                 <div className="flex-1">
                   <div className="space-y-10 sm:max-w-md">
                     <h2 className="text-4xl leading-tight">{slideTitle}</h2>
@@ -126,7 +128,6 @@ export function CaseStudyCarousel({
                     </p>
                   </div>
                 </div>
-                {/* Image Container */}
                 <div className="relative aspect-square h-[335px] flex-1 overflow-hidden md:h-[500px] 2xl:h-[608px]">
                   {isNoCropImage && (
                     <img
@@ -166,14 +167,13 @@ export function CaseStudyCarousel({
         })}
       </CarouselContent>
       <div className="relative container flex translate-y-6 items-center gap-12 md:-translate-y-full">
-        {/* Navigation Buttons */}
         <div className="flex items-center gap-3">
           <Button
             variant="secondary"
             size="icon"
             className="rounded-full"
             onClick={scrollPrev}
-            aria-label="Previous slide"
+            aria-label={dict.common.previousSlide}
           >
             <ArrowLeft className="size-4" />
           </Button>
@@ -182,19 +182,18 @@ export function CaseStudyCarousel({
             size="icon"
             className="rounded-full"
             onClick={scrollNext}
-            aria-label="Next slide"
+            aria-label={dict.common.nextSlide}
           >
             <ArrowRight className="size-4" />
           </Button>
         </div>
 
-        {/* Progress Indicators */}
         <div className="flex items-center gap-2">
           {project.images.map((_, idx) => (
             <button
               key={idx}
               onClick={() => scrollTo(idx)}
-              aria-label={`Go to slide ${idx + 1}`}
+              aria-label={`${dict.common.goToSlide} ${idx + 1}`}
               className={cn(
                 'relative cursor-pointer after:absolute after:-inset-2 after:content-[""]',
                 'h-[6px] w-8 rounded-full transition-all',

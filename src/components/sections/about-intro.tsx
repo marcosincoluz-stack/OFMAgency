@@ -1,7 +1,10 @@
-const aboutDescription =
-  'Somos Velour® la agencia de representación exclusiva que lleva tu carrera al 1% de los creadores..';
+import type { Locale } from '@/lib/i18n';
+import { getDictionary } from '@/lib/i18n-dictionary';
 
-export const AboutIntro = () => {
+export const AboutIntro = ({ locale = 'es', description }: { locale?: Locale; description?: string }) => {
+  const dict = getDictionary(locale);
+  const aboutDescription = description ?? dict.home.aboutIntro;
+
   return (
     <section className="pb-12 pt-0 md:pb-16 md:pt-0 lg:pb-20 lg:pt-0 bigger-container space-y-16 md:space-y-18">
       <div className="container max-w-4xl">

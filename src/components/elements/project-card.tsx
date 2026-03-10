@@ -10,10 +10,11 @@ import {
   Logo8,
   Logo9,
 } from '@/components/icons/logos';
+import { getDictionary } from '@/lib/i18n-dictionary';
+import { localizeHref, type Locale } from '@/lib/i18n';
 import type { EnrichedProject, ProjectFrontmatter } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-// Logo mapping for when using ProjectFrontmatter
 const logoMap = {
   Logo1,
   Logo2,
@@ -28,18 +29,18 @@ const logoMap = {
 
 interface ProjectCardProps {
   project: EnrichedProject | ProjectFrontmatter;
-  /**
-   * Whether to show the project name below the image
-   * @default true
-   */
   showName?: boolean;
   className?: string;
+  locale?: Locale;
+  href?: string;
 }
 
 export function ProjectCard({
   project,
   showName = true,
   className,
+  locale = 'es',
+  href,
 }: ProjectCardProps) {
   const [logoImageError, setLogoImageError] = useState(false);
   const {
@@ -47,23 +48,24 @@ export function ProjectCard({
     name,
     slug,
     logoImage,
+    forceWhiteLogo,
     logoClassName,
     imageClassName,
     hideLogoOverlay,
   } = project;
 
-  // Get Logo component - either from EnrichedProject or via logoMap
   const LogoComponent =
     'Logo' in project
       ? project.Logo
       : logoMap[project.logo as keyof typeof logoMap] || Logo1;
 
-  const primaryImage = images[0]; // Use first image
+  const primaryImage = images[0];
   const hasCustomLogoImage = Boolean(logoImage) && !logoImageError;
+  const dict = getDictionary(locale);
 
   return (
     <a
-      href={`/projects/${slug}`}
+      href={href ?? localizeHref(locale, `/projects/${slug}`)}
       className={cn('group flex flex-col items-start gap-4')}
     >
       <div className={cn('relative h-full w-full overflow-hidden', className)}>
@@ -77,25 +79,41 @@ export function ProjectCard({
           )}
           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
-        {/* Hover overlay */}
         <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/3" />
-        {/* Project logo overlay */}
         {!hideLogoOverlay && (
           <div className="absolute inset-0 flex items-center justify-center transition-all delay-50 duration-1000 ease-out group-hover:scale-80">
             {hasCustomLogoImage ? (
-              <img
-                src={logoImage}
-                alt={`${name} logo`}
-                className={cn('h-24 w-auto object-contain', logoClassName)}
-                onError={() => setLogoImageError(true)}
-              />
+              forceWhiteLogo ? (
+                <div
+                  aria-label={`${name} logo`}
+                  className={cn(
+                    'h-24 w-56 max-w-[80%] bg-white',
+                    logoClassName,
+                  )}
+                  style={{
+                    WebkitMaskImage: `url(${logoImage})`,
+                    maskImage: `url(${logoImage})`,
+                    WebkitMaskRepeat: 'no-repeat',
+                    maskRepeat: 'no-repeat',
+                    WebkitMaskPosition: 'center',
+                    maskPosition: 'center',
+                    WebkitMaskSize: 'contain',
+                    maskSize: 'contain',
+                  }}
+                />
+              ) : (
+                <img
+                  src={logoImage}
+                  alt={`${name} logo`}
+                  className={cn('h-24 w-auto object-contain', logoClassName)}
+                  onError={() => setLogoImageError(true)}
+                />
+              )
             ) : (
               <LogoComponent
-                className={cn(
-                  'flex h-24 text-white',
-                  logoClassName, // Custom logo classes from MDX
-                )}
+                className={cn('flex h-24 text-white', logoClassName)}
                 wordmarkClassName="hidden"
+                aria-label={dict.common.view}
               />
             )}
           </div>

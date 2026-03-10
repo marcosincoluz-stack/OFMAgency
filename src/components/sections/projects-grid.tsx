@@ -3,23 +3,36 @@
 import { ProjectCard } from '@/components/elements/project-card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { Locale } from '@/lib/i18n';
+import { getDictionary } from '@/lib/i18n-dictionary';
 import type { ProjectFrontmatter } from '@/lib/types';
 
 interface ProjectsGridProps {
   projects: ProjectFrontmatter[];
+  locale?: Locale;
 }
 
-const categories = [
-  { value: 'all', label: 'All' },
-  { value: 'logo-design', label: 'Logo Design' },
-  { value: 'brand-identity', label: 'Brand Identity' },
-  { value: 'icon-design', label: 'Icon Design' },
-];
+export const ProjectsGrid = ({ projects, locale = 'es' }: ProjectsGridProps) => {
+  const dict = getDictionary(locale);
+  const categories = [
+    { value: 'all', label: dict.projectsPage.categories.all },
+    {
+      value: 'logo-design',
+      label: dict.projectsPage.categories['logo-design'],
+    },
+    {
+      value: 'brand-identity',
+      label: dict.projectsPage.categories['brand-identity'],
+    },
+    {
+      value: 'icon-design',
+      label: dict.projectsPage.categories['icon-design'],
+    },
+  ] as const;
 
-export const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
   return (
     <div className="hero-padding container flex flex-col gap-10">
-      <h1 className="text-4xl">Projects</h1>
+      <h1 className="text-4xl">{dict.projectsPage.heading}</h1>
 
       <Tabs defaultValue="all" className="w-full">
         <ScrollArea className="pb-2" orientation="horizontal">
@@ -45,6 +58,7 @@ export const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
                   <ProjectCard
                     key={project.id}
                     project={project}
+                    locale={locale}
                     className="h-[290px]"
                   />
                 ))}

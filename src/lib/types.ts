@@ -27,6 +27,7 @@ export interface ProjectFrontmatter {
   slug: string;
   logo: string;
   logoImage?: string;
+  forceWhiteLogo?: boolean;
   category: ProjectCategory;
   url: string;
   title?: string;

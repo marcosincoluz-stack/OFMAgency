@@ -1,12 +1,19 @@
 'use client';
 
 import { useCurrentTime } from '@/hooks/use-current-time';
-import { CONTACT_EMAIL, NAV_ITEMS, SOCIAL_LINKS } from '@/lib/constants';
+import { CONTACT_EMAIL, SOCIAL_LINKS, getNavItems } from '@/lib/constants';
+import { getDictionary } from '@/lib/i18n-dictionary';
+import { type Locale } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { AnimatedBackground } from '@/components/elements/animated-background';
 
-const Footer = () => {
-  const { currentTime, currentLocation } = useCurrentTime();
+const Footer = ({ locale }: { locale: Locale }) => {
+  const dict = getDictionary(locale);
+  const navItems = getNavItems(locale);
+  const { currentTime, currentLocation } = useCurrentTime(
+    locale,
+    dict.footer.unknownLocation,
+  );
 
   return (
     <div className="section-padding pb-0!">
@@ -24,12 +31,8 @@ const Footer = () => {
         <div className="bigger-container relative z-10 flex min-h-[min(90dvh,750px)] flex-col justify-between">
           <div className="flex items-center justify-center gap-6 md:justify-between">
             <nav className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
-              {NAV_ITEMS.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className="animated-underline"
-                >
+              {navItems.map((item) => (
+                <a key={item.href} href={item.href} className="animated-underline">
                   {item.label}
                 </a>
               ))}
@@ -49,10 +52,6 @@ const Footer = () => {
               ))}
             </div>
           </div>
-          {/* uncomment if you just want text over the footer background/video */}
-          {/* <span className="font-weight-display font-display text-center text-5xl md:text-6xl lg:text-7xl">
-            Hive Studio
-          </span> */}
 
           <div className="space-y-6">
             <div className="flex items-center justify-center gap-6 md:hidden">
@@ -68,14 +67,11 @@ const Footer = () => {
               ))}
             </div>
             <div className="flex flex-wrap items-center justify-center gap-6 md:justify-between">
-              <a
-                className="animated-underline"
-                href={`mailto:${CONTACT_EMAIL}`}
-              >
+              <a className="animated-underline" href={`mailto:${CONTACT_EMAIL}`}>
                 {CONTACT_EMAIL}
               </a>
-              <span className="">
-                {currentTime} · {currentLocation}
+              <span>
+                {currentTime} · {currentLocation || dict.footer.unknownLocation}
               </span>
             </div>
           </div>

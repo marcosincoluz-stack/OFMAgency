@@ -1,3 +1,5 @@
+import type { Locale } from '@/lib/i18n';
+import { getDictionary } from '@/lib/i18n-dictionary';
 import { cn } from '@/lib/utils';
 
 interface WhatYouGetItem {
@@ -9,14 +11,20 @@ interface WhatYouGetItem {
 
 interface ServiceWhatYouGetProps {
   items: WhatYouGetItem[];
+  locale?: Locale;
 }
 
-export const ServiceWhatYouGet = ({ items }: ServiceWhatYouGetProps) => {
+export const ServiceWhatYouGet = ({
+  items,
+  locale = 'es',
+}: ServiceWhatYouGetProps) => {
+  const dict = getDictionary(locale);
+
   return (
     <section
       className={cn('section-padding container space-y-16 md:space-y-18')}
     >
-      <h2 className="text-4xl">What you get</h2>
+      <h2 className="text-4xl">{dict.serviceDetail.whatYouGet}</h2>
 
       <div className="grid gap-x-6 gap-y-12 lg:grid-cols-3">
         {items.map((item, index) => (

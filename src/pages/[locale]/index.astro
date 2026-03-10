@@ -1,0 +1,51 @@
+---
+import { Hero } from '@/components/sections/hero';
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { AboutIntro } from '@/components/sections/about-intro';
+import { CaseStudies } from '@/components/sections/case-studies';
+import { Logos } from '@/components/sections/logos';
+import { getAllProjects } from '@/lib/projects';
+import { Services } from '@/components/sections/services';
+import { BentoDemo } from '@/components/sections/bento-demo';
+import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/lib/i18n';
+import { getDictionary } from '@/lib/i18n-dictionary';
+
+export async function getStaticPaths() {
+  return SUPPORTED_LOCALES.map((locale) => ({ params: { locale } }));
+}
+
+const localeParam = Astro.params.locale;
+if (!isLocale(localeParam)) {
+  return Astro.redirect('/es', 302);
+}
+
+const locale: Locale = localeParam;
+const market = Astro.locals.market;
+const dict = getDictionary(locale);
+
+const allProjects = await getAllProjects(locale);
+
+const heroProjects = allProjects.slice(0, 4);
+const caseStudyProjects = [allProjects[0], allProjects[1], allProjects[4]].filter(Boolean);
+const logoProjects = [
+  allProjects[0],
+  allProjects[1],
+  allProjects[2],
+  allProjects[3],
+  allProjects[8],
+  allProjects[11],
+].filter(Boolean);
+---
+
+<DefaultLayout
+  locale={locale}
+  title={dict.pages.home.title}
+  description={dict.pages.home.description}
+>
+  <Hero projects={heroProjects} locale={locale} client:idle />
+  <AboutIntro locale={locale} />
+  <BentoDemo locale={locale} market={market} client:load />
+  <CaseStudies projects={caseStudyProjects} locale={locale} client:idle />
+  <Services locale={locale} />
+  <Logos projects={logoProjects} client:idle />
+</DefaultLayout>

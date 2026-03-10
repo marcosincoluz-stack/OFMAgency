@@ -1,0 +1,41 @@
+---
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { Cta } from '@/components/sections/cta';
+import { Button } from '@/components/ui/button';
+import { SUPPORTED_LOCALES, isLocale, localizeHref, type Locale } from '@/lib/i18n';
+import { getDictionary } from '@/lib/i18n-dictionary';
+
+export async function getStaticPaths() {
+  return SUPPORTED_LOCALES.map((locale) => ({ params: { locale } }));
+}
+
+const localeParam = Astro.params.locale;
+if (!isLocale(localeParam)) {
+  return Astro.redirect('/es', 302);
+}
+
+const locale: Locale = localeParam;
+const dict = getDictionary(locale);
+---
+
+<DefaultLayout locale={locale} title={dict.pages.careers.title} description={dict.pages.careers.description}>
+  <section class="hero-padding container space-y-8 text-center">
+    <h1 class="text-5xl md:text-6xl lg:text-7xl">
+      {locale === 'es' ? 'Unete a Velour' : 'Join Velour'}
+    </h1>
+    <p class="text-muted-foreground mx-auto max-w-2xl text-lg">
+      {
+        locale === 'es'
+          ? 'Buscamos talento en operaciones, growth y ventas conversacionales para escalar cuentas top.'
+          : 'We are hiring operations, growth and conversational sales talent to scale top creator accounts.'
+      }
+    </p>
+    <Button asChild size="lg" variant="outline">
+      <a href={localizeHref(locale, '/contact')}>
+        {locale === 'es' ? 'Aplicar ahora' : 'Apply now'}
+      </a>
+    </Button>
+  </section>
+
+  <Cta locale={locale} />
+</DefaultLayout>

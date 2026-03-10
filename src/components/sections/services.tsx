@@ -13,40 +13,64 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { type Locale, localizeHref } from '@/lib/i18n';
+import { getDictionary } from '@/lib/i18n-dictionary';
 import { cn } from '@/lib/utils';
 
 const services = [
   {
     slug: 'logo-design',
     icon: LogoDesignIcon,
-    title: 'Logo Design',
-    description:
-      "We create logos that are simple, memorable, and versatile. Each design is crafted to reflect your brand's values and connect with your audience.",
+    title: {
+      es: 'Estrategia de Ventas por DM',
+      en: 'DM Sales Strategy',
+    },
+    description: {
+      es: 'Diseñamos funnels conversacionales y secuencias de oferta que convierten chats en ingresos diarios.',
+      en: 'We design conversational funnels and offer sequences that turn chats into daily revenue.',
+    },
   },
   {
     slug: 'brand-identity',
     icon: BrandIdentityIcon,
-    title: 'Brand Identity',
-    description:
-      'A logo is just the beginning. We build complete brand identity systems — including colors, typography, and style guides — so your brand looks consistent everywhere.',
+    title: {
+      es: 'Operación de Cuenta 24/7',
+      en: '24/7 Account Operations',
+    },
+    description: {
+      es: 'Gestionamos bandeja, retención y monetización continua para mantener tracción sin pausas.',
+      en: 'We run inbox, retention and monetization workflows continuously to sustain traction.',
+    },
   },
   {
     slug: 'rebranding',
     icon: DropletIcon,
-    title: 'Rebranding',
-    description:
-      "Is your current logo outdated? We help businesses refresh their look with a modern identity that stays true to their story while appealing to today's audience.",
+    title: {
+      es: 'Optimización de Monetización',
+      en: 'Monetization Optimization',
+    },
+    description: {
+      es: 'Ajustamos pricing, PPV y promociones para mejorar ARPU y LTV con decisiones basadas en datos.',
+      en: 'We optimize pricing, PPV and promotions to improve ARPU and LTV with data-backed decisions.',
+    },
   },
   {
     slug: 'icon-design',
     icon: DiamondShapesIcon,
-    title: 'Icon Design',
-    description:
-      'We design custom icons and visual marks that work alongside your logo, making your brand easier to recognize across digital platforms, print, and everyday applications.',
+    title: {
+      es: 'Captación y Escalado',
+      en: 'Acquisition & Scaling',
+    },
+    description: {
+      es: 'Conectamos adquisición, contenido y cierre comercial para crecer de forma predecible y estable.',
+      en: 'We align acquisition, content and closing to scale in a predictable, stable way.',
+    },
   },
-];
+] as const;
 
-export const Services = () => {
+export const Services = ({ locale = 'es' }: { locale?: Locale }) => {
+  const dict = getDictionary(locale);
+
   return (
     <section
       className={cn(
@@ -63,15 +87,15 @@ export const Services = () => {
             </CardHeader>
 
             <CardContent className="space-y-6">
-              <CardTitle className="text-2xl">{service.title}</CardTitle>
+              <CardTitle className="text-2xl">{service.title[locale]}</CardTitle>
               <CardDescription className="max-w-lg">
-                {service.description}
+                {service.description[locale]}
               </CardDescription>
             </CardContent>
             <CardFooter>
-              <a href={`/services/${service.slug}`}>
+              <a href={localizeHref(locale, `/services/${service.slug}`)}>
                 <Button variant="outline" size="lg">
-                  Learn more
+                  {dict.common.learnMore}
                 </Button>
               </a>
             </CardFooter>

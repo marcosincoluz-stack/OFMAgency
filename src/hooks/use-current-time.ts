@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 
-export const useCurrentTime = () => {
+export const useCurrentTime = (locale: string = 'en', unknownLocation = 'Unknown') => {
   const [currentTime, setCurrentTime] = useState<string>('--:--');
   const [currentLocation, setCurrentLocation] = useState<string>('');
 
   useEffect(() => {
-    // Update time every second
     const updateTime = () => {
       const now = new Date();
-      const timeString = now.toLocaleTimeString('en-US', {
+      const timeString = now.toLocaleTimeString(locale === 'es' ? 'es-ES' : 'en-US', {
         hour: 'numeric',
         minute: '2-digit',
         hour12: true,
@@ -19,16 +18,14 @@ export const useCurrentTime = () => {
     updateTime();
     const timeInterval = setInterval(updateTime, 1000);
 
-    // Get location based on timezone
     const getLocation = () => {
       try {
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        // Extract city name from timezone (e.g., "America/New_York" -> "New York")
         const cityName =
           timeZone.split('/').pop()?.replace(/_/g, ' ') || timeZone;
         setCurrentLocation(cityName);
       } catch {
-        setCurrentLocation('Unknown');
+        setCurrentLocation(unknownLocation);
       }
     };
 
@@ -37,7 +34,7 @@ export const useCurrentTime = () => {
     return () => {
       clearInterval(timeInterval);
     };
-  }, []);
+  }, [locale, unknownLocation]);
 
   return { currentTime, currentLocation };
 };

@@ -1,5 +1,6 @@
 import { getCollection, getEntry } from 'astro:content';
 
+import { DEFAULT_LOCALE, type Locale } from '@/lib/i18n';
 import type {
   ProjectCategory,
   ProjectFrontmatter,
@@ -11,12 +12,22 @@ import {
   getProjectsBySlugsFrontmatter,
 } from './projects';
 
-/**
- * Get all service slugs
- */
-export async function getServiceSlugs(): Promise<string[]> {
+type ServiceCollection = 'servicesEs' | 'servicesEn';
+
+const SERVICE_COLLECTION_BY_LOCALE: Record<Locale, ServiceCollection> = {
+  es: 'servicesEs',
+  en: 'servicesEn',
+};
+
+function getServiceCollection(locale: Locale): ServiceCollection {
+  return SERVICE_COLLECTION_BY_LOCALE[locale] ?? SERVICE_COLLECTION_BY_LOCALE[DEFAULT_LOCALE];
+}
+
+export async function getServiceSlugs(
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<string[]> {
   try {
-    const services = await getCollection('services');
+    const services = await getCollection(getServiceCollection(locale));
     return services.map((service) => service.id);
   } catch (error) {
     console.error('Error reading services directory:', error);
@@ -24,12 +35,12 @@ export async function getServiceSlugs(): Promise<string[]> {
   }
 }
 
-/**
- * Get service by slug
- */
-export async function getServiceBySlug(slug: string) {
+export async function getServiceBySlug(
+  locale: Locale = DEFAULT_LOCALE,
+  slug: string,
+) {
   try {
-    const service = await getEntry('services', slug);
+    const service = await getEntry(getServiceCollection(locale), slug);
     if (!service) return null;
 
     return {
@@ -43,14 +54,12 @@ export async function getServiceBySlug(slug: string) {
   }
 }
 
-/**
- * Get all services with their frontmatter
- */
-export async function getAllServices(): Promise<ServiceFrontmatter[]> {
+export async function getAllServices(
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<ServiceFrontmatter[]> {
   try {
-    const services = await getCollection('services');
+    const services = await getCollection(getServiceCollection(locale));
 
-    // Convert collection entries to ServiceFrontmatter
     return services.map((service) => ({
       ...service.data,
     })) as ServiceFrontmatter[];
@@ -60,22 +69,15 @@ export async function getAllServices(): Promise<ServiceFrontmatter[]> {
   }
 }
 
-/**
- * Resolve featured work for a service (without Logo components)
- * Use this when passing data to Client Components
- * - If featuredWork is undefined/empty: auto-filter by service slug (category)
- * - If featuredWork is string array: get projects by those slugs in specified order
- */
 export async function resolveFeaturedWork(
+  locale: Locale = DEFAULT_LOCALE,
   service: ServiceFrontmatter,
 ): Promise<ProjectFrontmatter[]> {
   const { slug, featuredWork } = service;
 
-  // No featuredWork specified: auto-filter by category
   if (!featuredWork || featuredWork.length === 0) {
-    return await getProjectsByCategoryFrontmatter(slug as ProjectCategory);
+    return await getProjectsByCategoryFrontmatter(locale, slug as ProjectCategory);
   }
 
-  // Custom project selection by slugs
-  return await getProjectsBySlugsFrontmatter(featuredWork);
+  return await getProjectsBySlugsFrontmatter(locale, featuredWork);
 }

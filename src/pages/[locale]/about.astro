@@ -1,0 +1,45 @@
+---
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { AboutIntro } from '@/components/sections/about-intro';
+import { Process } from '@/components/sections/process';
+import { Cta } from '@/components/sections/cta';
+import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/lib/i18n';
+import { getDictionary } from '@/lib/i18n-dictionary';
+
+export async function getStaticPaths() {
+  return SUPPORTED_LOCALES.map((locale) => ({ params: { locale } }));
+}
+
+const localeParam = Astro.params.locale;
+if (!isLocale(localeParam)) {
+  return Astro.redirect('/es', 302);
+}
+
+const locale: Locale = localeParam;
+const dict = getDictionary(locale);
+
+const values =
+  locale === 'es'
+    ? [
+        { title: 'Estrategia', description: 'Decisiones basadas en datos y posicionamiento claro.' },
+        { title: 'Ejecucion', description: 'Operacion diaria con estandares de performance altos.' },
+        { title: 'Escalado', description: 'Sistemas pensados para crecer sin perder rentabilidad.' },
+      ]
+    : [
+        { title: 'Strategy', description: 'Data-backed decisions with clear positioning.' },
+        { title: 'Execution', description: 'Daily operations with high performance standards.' },
+        { title: 'Scaling', description: 'Systems built to grow without losing profitability.' },
+      ];
+---
+
+<DefaultLayout locale={locale} title={dict.pages.about.title} description={dict.pages.about.description}>
+  <section class="hero-padding container text-center">
+    <h1 class="text-5xl md:text-6xl lg:text-7xl">
+      {locale === 'es' ? 'Sobre Velour' : 'About Velour'}
+    </h1>
+  </section>
+
+  <AboutIntro locale={locale} />
+  <Process title={locale === 'es' ? 'Como trabajamos' : 'How we work'} steps={values} client:idle />
+  <Cta locale={locale} />
+</DefaultLayout>

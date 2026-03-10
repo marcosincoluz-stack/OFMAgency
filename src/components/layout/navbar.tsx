@@ -2,37 +2,56 @@
 
 import { Clock } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import Logo from '@/components/layout/logo';
 import { Button } from '@/components/ui/button';
 import { useCurrentTime } from '@/hooks/use-current-time';
-import { CONTACT_EMAIL, NAV_ITEMS, SOCIAL_LINKS } from '@/lib/constants';
+import { CONTACT_EMAIL, SOCIAL_LINKS, getNavItems } from '@/lib/constants';
+import { getDictionary } from '@/lib/i18n-dictionary';
+import { localizeHref, stripLocaleFromPath, withLocale, type Locale } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/elements/theme-toggle';
 
 import '@/styles/navbar-animation.css';
 
-export const Navbar = ({ pathname }: { pathname: string }) => {
+const ONE_YEAR = 60 * 60 * 24 * 365;
+
+export const Navbar = ({
+  pathname,
+  locale,
+}: {
+  pathname: string;
+  locale: Locale;
+}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isNavbarHidden, setIsNavbarHidden] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isOpening, setIsOpening] = useState(false);
-  const { currentTime } = useCurrentTime();
 
-  // Handle scroll to hide/show navbar
+  const dict = getDictionary(locale);
+  const navItems = useMemo(() => getNavItems(locale), [locale]);
+  const { currentTime } = useCurrentTime(locale);
+
+  const basePath = stripLocaleFromPath(pathname);
+  const isHome = basePath === '/';
+  const esPath = withLocale(basePath, 'es');
+  const enPath = withLocale(basePath, 'en');
+
+  const setLocaleCookie = (targetLocale: Locale) => {
+    document.cookie = `locale=${targetLocale}; Path=/; Max-Age=${ONE_YEAR}; SameSite=Lax`;
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      const scrollThreshold = 50; // Minimum scroll before hiding
+      const scrollThreshold = 50;
 
       if (currentScrollY < scrollThreshold) {
-        // Always show navbar near the top
         setIsNavbarHidden(false);
       } else if (currentScrollY > lastScrollY) {
-        // Scrolling down - hide navbar
         setIsNavbarHidden(true);
       }
 
@@ -59,12 +78,9 @@ export const Navbar = ({ pathname }: { pathname: string }) => {
   };
 
   const handleAnimationEnd = (e: React.AnimationEvent) => {
-    // When opening animation completes (column-five-open is last to finish)
     if (isMenuOpen && e.animationName === 'column-five-open') {
       setIsAnimating(false);
-    }
-    // When closing animation completes (column-five-close is last to finish)
-    else if (!isMenuOpen && e.animationName === 'column-five-close') {
+    } else if (!isMenuOpen && e.animationName === 'column-five-close') {
       setIsAnimating(false);
       setShouldRender(false);
     }
@@ -75,19 +91,18 @@ export const Navbar = ({ pathname }: { pathname: string }) => {
       document.body.style.overflow = '';
     };
   }, []);
+
   return (
     <>
       <header
         className={cn(
           'bigger-container inset-x-0 z-50 flex items-center justify-between py-5 transition-transform duration-700 ease-in-out md:py-6',
-          pathname === '/' && 'inset-x-5 pt-10.5 md:inset-x-6 md:py-12.5',
-          pathname === '/' && 'text-background',
-          pathname !== '/' && isMenuOpen && 'text-background',
+          isHome && 'inset-x-5 pt-10.5 md:inset-x-6 md:py-12.5',
+          isHome && 'text-background',
+          !isHome && isMenuOpen && 'text-background',
           'fixed',
           'mt-14',
-          isNavbarHidden &&
-            !isMenuOpen &&
-            '-translate-y-[calc(100%+3.5rem)]',
+          isNavbarHidden && !isMenuOpen && '-translate-y-[calc(100%+3.5rem)]',
         )}
       >
         <div className="flex flex-1 flex-row-reverse items-center justify-between md:flex-row">
@@ -98,31 +113,22 @@ export const Navbar = ({ pathname }: { pathname: string }) => {
                 'relative z-50 h-3.5 w-[18px] cursor-pointer',
                 'after:absolute after:-inset-2 after:content-[""]',
               )}
-              aria-label="Toggle menu"
+              aria-label={dict.nav.toggleMenu}
             >
-              <span className="sr-only">Open main menu</span>
+              <span className="sr-only">{dict.nav.openMenu}</span>
               <div className="hamburger-lines">
                 <span
                   aria-hidden="true"
-                  className={cn(
-                    'hamburger-line hamburger-line-1',
-                    isMenuOpen && 'menu-open',
-                  )}
-                ></span>
+                  className={cn('hamburger-line hamburger-line-1', isMenuOpen && 'menu-open')}
+                />
                 <span
                   aria-hidden="true"
-                  className={cn(
-                    'hamburger-line hamburger-line-2',
-                    isMenuOpen && 'menu-open',
-                  )}
-                ></span>
+                  className={cn('hamburger-line hamburger-line-2', isMenuOpen && 'menu-open')}
+                />
                 <span
                   aria-hidden="true"
-                  className={cn(
-                    'hamburger-line hamburger-line-3',
-                    isMenuOpen && 'menu-open',
-                  )}
-                ></span>
+                  className={cn('hamburger-line hamburger-line-3', isMenuOpen && 'menu-open')}
+                />
               </div>
             </button>
           </div>
@@ -158,12 +164,32 @@ export const Navbar = ({ pathname }: { pathname: string }) => {
                   <Button
                     variant="outline"
                     asChild
-                    className={cn(
-                      (pathname === '/' || isAnimating) && 'text-background',
-                    )}
+                    className={cn((isHome || isAnimating) && 'text-background')}
                   >
-                    <a href="/contact">Work with Hive</a>
+                    <a href={localizeHref(locale, '/contact')}>{dict.nav.workWithUs}</a>
                   </Button>
+                  <div className="flex items-center rounded-full border border-border/60 bg-background/60 p-0.5 text-xs backdrop-blur-sm">
+                    <a
+                      href={esPath}
+                      onClick={() => setLocaleCookie('es')}
+                      className={cn(
+                        'rounded-full px-2 py-1 transition-colors',
+                        locale === 'es' ? 'bg-foreground text-background' : 'text-foreground/70',
+                      )}
+                    >
+                      {dict.localeSwitcher.es}
+                    </a>
+                    <a
+                      href={enPath}
+                      onClick={() => setLocaleCookie('en')}
+                      className={cn(
+                        'rounded-full px-2 py-1 transition-colors',
+                        locale === 'en' ? 'bg-foreground text-background' : 'text-foreground/70',
+                      )}
+                    >
+                      {dict.localeSwitcher.en}
+                    </a>
+                  </div>
                   <Button
                     variant="secondary"
                     className="hover:bg-secondary cursor-normal pointer-events-none"
@@ -191,7 +217,7 @@ export const Navbar = ({ pathname }: { pathname: string }) => {
       >
         <nav className="flex h-full flex-col items-center justify-between py-6">
           <div className="flex flex-1 flex-col items-center justify-center gap-6">
-            {NAV_ITEMS.map((item) => (
+            {navItems.map((item) => (
               <a
                 key={item.href}
                 href={item.href}

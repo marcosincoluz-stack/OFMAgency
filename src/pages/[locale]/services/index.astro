@@ -1,0 +1,34 @@
+---
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { Services } from '@/components/sections/services-section';
+import { OurProcess } from '@/components/sections/our-process';
+import { Testimonials } from '@/components/sections/testimonials';
+import { Cta } from '@/components/sections/cta';
+import { getAllServices } from '@/lib/services';
+import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/lib/i18n';
+import { getDictionary } from '@/lib/i18n-dictionary';
+
+export async function getStaticPaths() {
+  return SUPPORTED_LOCALES.map((locale) => ({ params: { locale } }));
+}
+
+const localeParam = Astro.params.locale;
+if (!isLocale(localeParam)) {
+  return Astro.redirect('/es', 302);
+}
+
+const locale: Locale = localeParam;
+const dict = getDictionary(locale);
+const services = await getAllServices(locale);
+---
+
+<DefaultLayout
+  locale={locale}
+  title={dict.pages.services.title}
+  description={dict.pages.services.description}
+>
+  <Services services={services} locale={locale} client:idle />
+  <OurProcess locale={locale} />
+  <Testimonials locale={locale} />
+  <Cta locale={locale} />
+</DefaultLayout>

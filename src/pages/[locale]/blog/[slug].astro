@@ -1,0 +1,286 @@
+---
+import { render } from 'astro:content';
+
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { getAllBlogPosts, getAllBlogSlugs, getBlogPostBySlug } from '@/lib/blog';
+import {
+  localizeHref,
+  SUPPORTED_LOCALES,
+  isLocale,
+  type Locale,
+} from '@/lib/i18n';
+
+export async function getStaticPaths() {
+  const slugs = await getAllBlogSlugs();
+  const paths = [];
+
+  for (const locale of SUPPORTED_LOCALES) {
+    for (const slug of slugs) {
+      paths.push({ params: { locale, slug } });
+    }
+  }
+
+  return paths;
+}
+
+const localeParam = Astro.params.locale;
+const slug = Astro.params.slug;
+
+if (!isLocale(localeParam) || !slug) {
+  return Astro.redirect('/es', 302);
+}
+
+const locale: Locale = localeParam;
+const post = await getBlogPostBySlug(locale, slug);
+
+if (!post) {
+  return Astro.redirect(localizeHref(locale, '/blog'), 302);
+}
+
+const { Content } = await render(post);
+const allPosts = await getAllBlogPosts(locale);
+const currentIndex = allPosts.findIndex((entry) => entry.id === post.id);
+
+const newerPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
+const olderPost =
+  currentIndex >= 0 && currentIndex < allPosts.length - 1
+    ? allPosts[currentIndex + 1]
+    : null;
+
+const scoreBySharedTags = (targetTags?: string[]) => {
+  const sourceTags = new Set(post.data.tags ?? []);
+  if (!targetTags || sourceTags.size === 0) return 0;
+
+  return targetTags.reduce((score, tag) => {
+    return score + (sourceTags.has(tag) ? 1 : 0);
+  }, 0);
+};
+
+const relatedPosts = allPosts
+  .filter((entry) => entry.id !== post.id)
+  .sort((a, b) => {
+    const sharedDiff = scoreBySharedTags(b.data.tags) - scoreBySharedTags(a.data.tags);
+    if (sharedDiff !== 0) return sharedDiff;
+    return new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
+  })
+  .slice(0, 3);
+
+const coverImage = post.data.coverImage ?? '/images/homepage/hero/new1.webp';
+const keyPoints = (post.data.keyPoints ?? []).slice(0, 5);
+const readingMinutes = Math.max(
+  3,
+  Math.ceil((post.body?.split(/\s+/).filter(Boolean).length ?? 0) / 220),
+);
+
+const ctaLabel =
+  locale === 'es'
+    ? 'Auditoria gratuita'
+    : 'Free audit';
+
+const ctaDescription =
+  locale === 'es'
+    ? 'Si quieres un sistema de monetizacion sin burnout, aplica hoy.'
+    : 'If you want a monetization system without burnout, apply today.';
+const finalCtaText =
+  locale === 'es'
+    ? 'Tu foco debe volver a la creacion y a tu vida privada. Nuestro foco es la conversion implacable.'
+    : 'Your focus should return to creation and your private life. Our focus is relentless conversion.';
+const finalCtaButton =
+  locale === 'es'
+    ? 'Auditoria gratuita'
+    : 'Free audit';
+
+const pageTitle = `${post.data.title} | Velour`;
+const pageDescription = post.data.description;
+---
+
+<DefaultLayout locale={locale} title={pageTitle} description={pageDescription}>
+  <article class="hero-padding container">
+    <div class="mx-auto max-w-5xl space-y-10">
+      <a
+        href={localizeHref(locale, '/blog')}
+        class="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
+      >
+        {locale === 'es' ? 'Volver al blog' : 'Back to blog'}
+      </a>
+
+      <header class="space-y-5">
+        <p class="text-xs uppercase tracking-[0.22em] text-muted-foreground">
+          Velour Research
+        </p>
+        <h1 class="max-w-4xl text-4xl leading-tight tracking-tight md:text-5xl">
+          {post.data.title}
+        </h1>
+        <p class="max-w-3xl text-base text-muted-foreground md:text-lg">
+          {post.data.description}
+        </p>
+        <div class="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+          <span>
+            {new Date(post.data.date).toLocaleDateString(
+              locale === 'es' ? 'es-ES' : 'en-US',
+              {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              },
+            )}
+          </span>
+          {post.data.tags?.map((tag) => (
+            <span class="rounded-full border border-border/70 px-2.5 py-0.5 text-xs">
+              {tag}
+            </span>
+          ))}
+        </div>
+      </header>
+
+      <figure class="overflow-hidden rounded-2xl border border-border/70 bg-card/50">
+        <img
+          src={coverImage}
+          alt={post.data.title}
+          class="h-[260px] w-full object-cover md:h-[420px]"
+          loading="eager"
+        />
+      </figure>
+
+      <div class="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div class="space-y-8">
+          {keyPoints.length > 0 && (
+            <section class="rounded-2xl border border-border/70 bg-card/55 p-6 md:p-7">
+              <p class="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                {locale === 'es' ? 'Resumen ejecutivo' : 'Executive summary'}
+              </p>
+              <ul class="mt-4 space-y-2 text-sm text-foreground/90 md:text-base">
+                {keyPoints.map((point) => (
+                  <li class="flex gap-2">
+                    <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/70"></span>
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <div
+            class="max-w-none space-y-4 text-[1.04rem] leading-8 text-foreground/92 [&_blockquote]:my-8 [&_blockquote]:rounded-r-lg [&_blockquote]:border-l-2 [&_blockquote]:border-foreground/20 [&_blockquote]:bg-card/45 [&_blockquote]:px-4 [&_blockquote]:py-2 [&_figure]:my-10 [&_figure]:overflow-hidden [&_figure]:rounded-2xl [&_figure]:border [&_figure]:border-border/70 [&_figure]:bg-card/50 [&_figure_img]:h-[230px] [&_figure_img]:w-full [&_figure_img]:object-cover md:[&_figure_img]:h-[320px] [&_figcaption]:px-4 [&_figcaption]:py-3 [&_figcaption]:text-sm [&_figcaption]:text-muted-foreground [&_h2]:mt-14 [&_h2]:border-t [&_h2]:border-border/60 [&_h2]:pt-8 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:leading-tight [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:leading-tight [&_ol]:my-4 [&_ol]:space-y-1 [&_ol]:pl-5 [&_p]:my-4 [&_ul]:my-4 [&_ul]:space-y-1 [&_ul]:pl-5"
+          >
+            <Content />
+          </div>
+
+          <section class="rounded-2xl border border-white/30 bg-card/70 p-6 md:p-8">
+            <p class="text-xl leading-tight tracking-tight md:text-2xl">
+              {finalCtaText}
+            </p>
+        <a
+          href={localizeHref(locale, '/contact')}
+          class="mt-5 inline-flex items-center justify-center rounded-full bg-[#2f7cc7] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(47,124,199,0.28)] transition hover:bg-[#2a71b6]"
+        >
+          {finalCtaButton}
+        </a>
+          </section>
+
+          <section class="grid gap-4 md:grid-cols-2">
+        {olderPost && (
+          <a
+            href={localizeHref(locale, `/blog/${olderPost.id}`)}
+            class="rounded-2xl border border-border/70 bg-card/50 p-5 transition-colors hover:border-foreground/30"
+          >
+            <p class="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+              {locale === 'es' ? 'Post anterior' : 'Previous post'}
+            </p>
+            <h3 class="mt-2 text-lg leading-tight tracking-tight">{olderPost.data.title}</h3>
+          </a>
+        )}
+        {newerPost && (
+          <a
+            href={localizeHref(locale, `/blog/${newerPost.id}`)}
+            class="rounded-2xl border border-border/70 bg-card/50 p-5 transition-colors hover:border-foreground/30"
+          >
+            <p class="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+              {locale === 'es' ? 'Post siguiente' : 'Next post'}
+            </p>
+            <h3 class="mt-2 text-lg leading-tight tracking-tight">{newerPost.data.title}</h3>
+          </a>
+        )}
+          </section>
+
+          {relatedPosts.length > 0 && (
+            <section class="space-y-4 border-t border-border/70 pt-8">
+              <p class="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                {locale === 'es' ? 'Leer tambien' : 'Read also'}
+              </p>
+              <div class="grid gap-4 md:grid-cols-3">
+                {relatedPosts.map((entry) => (
+                  <a
+                    href={localizeHref(locale, `/blog/${entry.id}`)}
+                    class="group overflow-hidden rounded-2xl border border-border/70 bg-card/45 transition-colors hover:border-foreground/30"
+                  >
+                    <img
+                      src={entry.data.coverImage ?? '/images/homepage/hero/new1.webp'}
+                      alt={entry.data.title}
+                      class="h-36 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div class="space-y-2 p-4">
+                      <h3 class="line-clamp-3 text-base leading-snug tracking-tight">
+                        {entry.data.title}
+                      </h3>
+                      <p class="line-clamp-2 text-sm text-muted-foreground">
+                        {entry.data.description}
+                      </p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+
+        <aside class="hidden lg:block">
+          <div class="sticky top-24 space-y-4">
+            <section class="rounded-2xl border border-border/70 bg-card/50 p-5">
+              <p class="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                {locale === 'es' ? 'En este articulo' : 'In this article'}
+              </p>
+              <p class="mt-2 text-sm text-muted-foreground">
+                {locale === 'es'
+                  ? `${readingMinutes} min de lectura`
+                  : `${readingMinutes} min read`}
+              </p>
+              {keyPoints.length > 0 && (
+                <ul class="mt-3 space-y-2 text-sm text-foreground/90">
+                  {keyPoints.slice(0, 3).map((point) => (
+                    <li class="flex gap-2">
+                      <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/70"></span>
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <section class="rounded-2xl border border-border/70 bg-card/55 p-5">
+              <p class="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                {locale === 'es'
+                  ? 'Auditoria estrategica gratuita'
+                  : 'Free strategic audit'}
+              </p>
+              <p class="mt-2 text-sm text-muted-foreground">{ctaDescription}</p>
+              <a
+                href={localizeHref(locale, '/contact')}
+                class="mt-4 inline-flex items-center justify-center rounded-full bg-[#2f7cc7] px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(47,124,199,0.26)] transition hover:bg-[#2a71b6]"
+              >
+                {ctaLabel}
+              </a>
+            </section>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </article>
+
+  <a
+    href={localizeHref(locale, '/contact')}
+    class="fixed left-1/2 bottom-[max(1rem,env(safe-area-inset-bottom))] z-50 inline-flex -translate-x-1/2 items-center justify-center rounded-full bg-[#2f7cc7] px-4 py-2.5 text-xs font-semibold whitespace-nowrap text-white shadow-[0_12px_28px_rgba(47,124,199,0.34)] transition hover:bg-[#2a71b6] md:right-8 md:left-auto md:translate-x-0 md:px-5 md:py-3 md:text-sm"
+  >
+    {ctaLabel}
+  </a>
+</DefaultLayout>

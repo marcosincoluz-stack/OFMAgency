@@ -1,0 +1,28 @@
+---
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { ProjectsGrid } from '@/components/sections/projects-grid';
+import { getAllProjects } from '@/lib/projects';
+import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/lib/i18n';
+import { getDictionary } from '@/lib/i18n-dictionary';
+
+export async function getStaticPaths() {
+  return SUPPORTED_LOCALES.map((locale) => ({ params: { locale } }));
+}
+
+const localeParam = Astro.params.locale;
+if (!isLocale(localeParam)) {
+  return Astro.redirect('/es', 302);
+}
+
+const locale: Locale = localeParam;
+const dict = getDictionary(locale);
+const allProjects = await getAllProjects(locale);
+---
+
+<DefaultLayout
+  locale={locale}
+  title={dict.pages.projects.title}
+  description={dict.pages.projects.description}
+>
+  <ProjectsGrid projects={allProjects} locale={locale} client:idle />
+</DefaultLayout>

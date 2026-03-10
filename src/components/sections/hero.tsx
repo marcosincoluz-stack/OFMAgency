@@ -4,15 +4,30 @@ import {
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel';
+import { Button } from '@/components/ui/button';
+import { localizeHref } from '@/lib/i18n';
+import type { Locale } from '@/lib/i18n';
+import { getDictionary } from '@/lib/i18n-dictionary';
 import type { ProjectFrontmatter } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { ProjectCard } from '../elements/project-card';
 
 interface HeroProps {
   projects: ProjectFrontmatter[];
+  locale?: Locale;
+  heading?: string;
+  subheading?: string;
 }
 
-export function Hero({ projects }: HeroProps) {
+export function Hero({ projects, locale = 'es', heading, subheading }: HeroProps) {
+  const dict = getDictionary(locale);
+  const heroBlogSlugs = [
+    'onlyfans-algoritmo-retencion',
+    'fanvue-plan-b-escalable',
+    'tinder-trafico-de-guerrilla',
+    'reddit-caza-whales-tier1',
+  ] as const;
+
   const heroProjects = projects.map((project, index) => {
     if (index !== 0 || project.images.length === 0) return project;
 
@@ -36,30 +51,41 @@ export function Hero({ projects }: HeroProps) {
           'bg-foreground text-background',
         )}
       >
-        {/* Background Pattern */}
         <AnimatedBackground
           className="absolute inset-0 h-full w-full object-cover opacity-50 dark:opacity-100 dark:invert"
           projectId="0LAbEmh570lz56FzSfFp"
         />
 
-        {/* Main Content */}
         <div className="relative z-10 flex flex-1 flex-col items-center justify-center py-10 text-center">
-          <h1 className="text-5xl md:text-7xl lg:text-9xl">We are Velour®</h1>
+          <h1 className="text-5xl md:text-7xl lg:text-9xl">
+            {heading ?? dict.home.heroHeading}
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-background/85 md:mt-6 md:text-lg">
+            {subheading ?? dict.home.heroSubheading}
+          </p>
+          <div className="mt-6 md:mt-7">
+            <Button
+              asChild
+              className="rounded-full border border-white bg-white px-7 text-black hover:bg-white/90 hover:text-black"
+            >
+              <a href={localizeHref(locale, '/contact')}>Únete</a>
+            </Button>
+          </div>
         </div>
 
-        {/* Project Cards - Desktop Grid (1920px+) */}
         <div className="hidden gap-6 p-6 [@media(min-width:1920px)]:grid [@media(min-width:1920px)]:grid-cols-4">
-          {heroProjects.map((project) => (
+          {heroProjects.map((project, index) => (
             <ProjectCard
               key={project.id}
               project={project}
               showName={false}
+              locale={locale}
+              href={`/blog/${heroBlogSlugs[index] ?? heroBlogSlugs[0]}`}
               className={cn('h-[290px] w-[438px]', heroImageMoodClass)}
             />
           ))}
         </div>
 
-        {/* Project Cards - Carousel (<1920px) */}
         <Carousel
           opts={{
             align: 'start',
@@ -67,7 +93,7 @@ export function Hero({ projects }: HeroProps) {
           className="flex w-full cursor-grab justify-center [@media(min-width:1920px)]:hidden"
         >
           <CarouselContent className="">
-            {heroProjects.map((project) => (
+            {heroProjects.map((project, index) => (
               <CarouselItem
                 key={project.id}
                 className="basis-[1/4] pl-5 first:pl-0 md:pl-6"
@@ -75,6 +101,8 @@ export function Hero({ projects }: HeroProps) {
                 <ProjectCard
                   project={project}
                   showName={false}
+                  locale={locale}
+                  href={`/blog/${heroBlogSlugs[index] ?? heroBlogSlugs[0]}`}
                   className={cn(
                     'h-[292px] w-[397px] md:h-[290px] md:w-[438px]',
                     heroImageMoodClass,

@@ -11,13 +11,13 @@ import {
   Logo8,
   Logo9,
 } from '@/components/icons/logos';
+import { DEFAULT_LOCALE, type Locale } from '@/lib/i18n';
 import type {
   EnrichedProject,
   ProjectCategory,
   ProjectFrontmatter,
 } from '@/lib/types';
 
-// Logo component mapping
 const LOGO_MAP = {
   Logo1,
   Logo2,
@@ -30,12 +30,22 @@ const LOGO_MAP = {
   Logo9,
 } as const;
 
-/**
- * Get all project slugs
- */
-export async function getProjectSlugs(): Promise<string[]> {
+type ProjectCollection = 'projectsEs' | 'projectsEn';
+
+const PROJECT_COLLECTION_BY_LOCALE: Record<Locale, ProjectCollection> = {
+  es: 'projectsEs',
+  en: 'projectsEn',
+};
+
+function getProjectCollection(locale: Locale): ProjectCollection {
+  return PROJECT_COLLECTION_BY_LOCALE[locale] ?? PROJECT_COLLECTION_BY_LOCALE[DEFAULT_LOCALE];
+}
+
+export async function getProjectSlugs(
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<string[]> {
   try {
-    const projects = await getCollection('projects');
+    const projects = await getCollection(getProjectCollection(locale));
     return projects.map((project) => project.id);
   } catch (error) {
     console.error('Error reading projects directory:', error);
@@ -43,12 +53,12 @@ export async function getProjectSlugs(): Promise<string[]> {
   }
 }
 
-/**
- * Get project by slug
- */
-export async function getProjectBySlug(slug: string) {
+export async function getProjectBySlug(
+  locale: Locale = DEFAULT_LOCALE,
+  slug: string,
+) {
   try {
-    const project = await getEntry('projects', slug);
+    const project = await getEntry(getProjectCollection(locale), slug);
     if (!project) return null;
 
     return {
@@ -62,20 +72,16 @@ export async function getProjectBySlug(slug: string) {
   }
 }
 
-/**
- * Get all projects with their frontmatter only (without Logo components)
- * Use this when passing data to Client Components
- */
-export async function getAllProjects(): Promise<ProjectFrontmatter[]> {
+export async function getAllProjects(
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<ProjectFrontmatter[]> {
   try {
-    const projects = await getCollection('projects');
+    const projects = await getCollection(getProjectCollection(locale));
 
-    // Convert collection entries to ProjectFrontmatter
     const projectData = projects.map((project) => ({
       ...project.data,
     })) as ProjectFrontmatter[];
 
-    // Sort by id
     return projectData.sort((a, b) => parseInt(a.id) - parseInt(b.id));
   } catch (error) {
     console.error('Error reading all projects:', error);
@@ -83,16 +89,13 @@ export async function getAllProjects(): Promise<ProjectFrontmatter[]> {
   }
 }
 
-/**
- * Get all projects with their frontmatter and Logo components
- * Use this only in Server Components when you need the Logo component
- */
-export async function getAllProjectsWithLogos(): Promise<EnrichedProject[]> {
+export async function getAllProjectsWithLogos(
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<EnrichedProject[]> {
   try {
-    const projects = await getAllProjects();
+    const projects = await getAllProjects(locale);
 
     return projects.map((frontmatter) => {
-      // Map logo string to Logo component
       const Logo = LOGO_MAP[frontmatter.logo as keyof typeof LOGO_MAP];
 
       return {
@@ -106,54 +109,41 @@ export async function getAllProjectsWithLogos(): Promise<EnrichedProject[]> {
   }
 }
 
-/**
- * Get projects filtered by category
- */
 export async function getProjectsByCategory(
+  locale: Locale = DEFAULT_LOCALE,
   category: ProjectCategory,
 ): Promise<EnrichedProject[]> {
-  const allProjects = await getAllProjectsWithLogos();
+  const allProjects = await getAllProjectsWithLogos(locale);
   return allProjects.filter((project) => project.category === category);
 }
 
-/**
- * Get projects by slugs in specified order
- * Used when service MDX specifies custom featured work
- */
 export async function getProjectsBySlugs(
+  locale: Locale = DEFAULT_LOCALE,
   slugs: string[],
 ): Promise<EnrichedProject[]> {
-  const allProjects = await getAllProjectsWithLogos();
+  const allProjects = await getAllProjectsWithLogos(locale);
   const projectMap = new Map(allProjects.map((p) => [p.slug, p]));
 
-  // Return projects in the order specified by slugs array
   return slugs
     .map((slug) => projectMap.get(slug))
     .filter((project): project is EnrichedProject => project !== undefined);
 }
 
-/**
- * Get projects filtered by category (without Logo components)
- * Use this when passing data to Client Components
- */
 export async function getProjectsByCategoryFrontmatter(
+  locale: Locale = DEFAULT_LOCALE,
   category: ProjectCategory,
 ): Promise<ProjectFrontmatter[]> {
-  const allProjects = await getAllProjects();
+  const allProjects = await getAllProjects(locale);
   return allProjects.filter((project) => project.category === category);
 }
 
-/**
- * Get projects by slugs in specified order (without Logo components)
- * Use this when passing data to Client Components
- */
 export async function getProjectsBySlugsFrontmatter(
+  locale: Locale = DEFAULT_LOCALE,
   slugs: string[],
 ): Promise<ProjectFrontmatter[]> {
-  const allProjects = await getAllProjects();
+  const allProjects = await getAllProjects(locale);
   const projectMap = new Map(allProjects.map((p) => [p.slug, p]));
 
-  // Return projects in the order specified by slugs array
   return slugs
     .map((slug) => projectMap.get(slug))
     .filter((project): project is ProjectFrontmatter => project !== undefined);

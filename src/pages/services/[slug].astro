@@ -51,7 +51,7 @@ const mappedWhatYouGet = frontmatter.whatYouGet.map((item) => ({
 }));
 
 // Resolve featured work (auto-filter or custom selection)
-const featuredWorkItems = await resolveFeaturedWork(frontmatter);
+const featuredWorkItems = await resolveFeaturedWork('es', frontmatter);
 
 const pageTitle = frontmatter.pageTitle + ' | ' + SITE_TITLE;
 const pageDescription = frontmatter.description;
