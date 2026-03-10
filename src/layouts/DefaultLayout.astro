@@ -1,0 +1,25 @@
+---
+import BaseHead from '@/components/BaseHead.astro';
+import { NavigationProvider } from '@/components/elements/navigation-provider';
+import Footer from '@/components/layout/footer';
+import { Navbar } from '@/components/layout/navbar';
+
+const { title, description } = Astro.props;
+const pathname = Astro.url.pathname;
+---
+
+<html lang="en">
+  <head>
+    <BaseHead title={title} description={description} />
+  </head>
+  <body
+    class={`h-screen antialiased flex flex-col [--header-height:calc(var(--spacing)*14)] lg:[--header-height:calc(var(--spacing)*23)]`}
+  >
+    <NavigationProvider client:load currentPath={pathname} />
+    <Navbar pathname={pathname} client:load />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer client:idle />
+  </body>
+</html>

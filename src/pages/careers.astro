@@ -1,0 +1,149 @@
+---
+import { SITE_TITLE } from '@/consts';
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  GrowthIcon,
+  HealthIcon,
+  LearningIcon,
+  RemoteIcon,
+} from '@/components/icons/benefits-icons';
+
+const pageTitle = 'Careers | ' + SITE_TITLE;
+const pageDescription = 'Join the Hive team and help us build the future of design.';
+
+const benefits = [
+  {
+    icon: RemoteIcon,
+    title: 'Remote First',
+    description: 'Work from anywhere. We believe in freedom and flexibility.',
+  },
+  {
+    icon: LearningIcon,
+    title: 'Continuous Learning',
+    description: 'Budget for courses, conferences, and books to keep you sharp.',
+  },
+  {
+    icon: HealthIcon,
+    title: 'Health & Wellness',
+    description: 'Comprehensive health coverage and wellness stipends.',
+  },
+  {
+    icon: GrowthIcon,
+    title: 'Career Growth',
+    description: 'Clear progression paths and opportunities to take on new challenges.',
+  },
+];
+
+const positions = [
+  {
+    title: 'Senior Brand Designer',
+    type: 'Full-time',
+    location: 'Remote',
+    department: 'Design',
+  },
+  {
+    title: 'Frontend Developer',
+    type: 'Full-time',
+    location: 'Remote',
+    department: 'Engineering',
+  },
+  {
+    title: 'Project Manager',
+    type: 'Full-time',
+    location: 'Remote',
+    department: 'Operations',
+  },
+];
+---
+
+<DefaultLayout title={pageTitle} description={pageDescription}>
+  <!-- Hero Section -->
+  <section class="hero-padding space-y-18 md:space-y-20 lg:space-y-26">
+    <h1 class="container text-center text-5xl md:text-6xl lg:text-7xl">
+      Join the Hive.
+    </h1>
+
+    <div class="bigger-container">
+      <div class="relative h-[335px] w-full overflow-hidden md:h-[450px] lg:h-[900px]">
+        <img
+          src="/images/about/hero.webp"
+          alt="Hive team working together"
+          class="size-full object-cover object-center grayscale"
+          loading="eager"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- Intro Section -->
+  <section class="section-padding container grid gap-10 md:grid-cols-2">
+    <h2 class="text-4xl">Why join us?</h2>
+    <div class="text-muted-foreground space-y-8 text-lg md:space-y-10">
+      <p>
+        At Hive, we're building a different kind of agency. One where
+        creativity thrives, hierarchies are flat, and every voice is heard.
+        We work with brands that inspire us, and we pour that inspiration
+        back into everything we create.
+      </p>
+      <p>
+        We're looking for people who are passionate about their craft,
+        curious about the world, and ready to do the best work of their
+        careers. If you value quality over quantity and collaboration over
+        ego, you'll fit right in.
+      </p>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="section-padding container space-y-16 md:space-y-18">
+    <h2 class="text-4xl">Benefits</h2>
+    <div class="grid gap-5 md:grid-cols-2 md:gap-x-6 md:gap-y-9">
+      {benefits.map((benefit) => {
+        const Icon = benefit.icon;
+        return (
+          <Card className="bg-muted border-none">
+            <CardHeader>
+              <Icon className="size-9" />
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <CardTitle className="text-2xl">{benefit.title}</CardTitle>
+              <CardDescription>{benefit.description}</CardDescription>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  </section>
+
+  <!-- Open Positions Section -->
+  <section class="section-padding container space-y-16 md:space-y-18">
+    <h2 class="text-4xl">Open positions</h2>
+
+    <div class="space-y-4">
+      {positions.map((position) => (
+        <Card className="group hover:bg-muted/50 flex flex-col gap-4 transition-colors md:flex-row md:items-center md:justify-between">
+          <CardHeader className="space-y-1">
+            <h3 class="text-2xl font-medium">{position.title}</h3>
+            <div class="text-muted-foreground flex gap-2 md:gap-4">
+              <span class="whitespace-nowrap">{position.department}</span>
+              <span>•</span>
+              <span class="whitespace-nowrap">{position.type}</span>
+              <span>•</span>
+              <span class="whitespace-nowrap">{position.location}</span>
+            </div>
+          </CardHeader>
+          <CardFooter>
+            <Button
+              variant="outline"
+              className="group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors"
+            >
+              <a href="/contact">Apply Now</a>
+            </Button>
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  </section>
+</DefaultLayout>

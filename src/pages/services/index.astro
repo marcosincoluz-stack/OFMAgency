@@ -1,0 +1,22 @@
+---
+import { SITE_TITLE, SITE_DESCRIPTION } from '@/consts';
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { Services } from '@/components/sections/services-section';
+import { OurProcess } from '@/components/sections/our-process';
+import { Testimonials } from '@/components/sections/testimonials';
+import { Cta } from '@/components/sections/cta';
+import { getAllServices } from '@/lib/services';
+
+// Fetch all services server-side
+const services = await getAllServices();
+
+const pageTitle = 'Services | ' + SITE_TITLE;
+const pageDescription = 'Discover our comprehensive design services - from logo design to complete brand identity systems.';
+---
+
+<DefaultLayout title={pageTitle} description={pageDescription}>
+  <Services services={services} client:idle />
+  <OurProcess />
+  <Testimonials />
+  <Cta />
+</DefaultLayout>

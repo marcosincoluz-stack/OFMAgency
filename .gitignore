@@ -1,0 +1,4 @@
+﻿*.fig
+*.zip
+node_modules/
+__MACOSX/

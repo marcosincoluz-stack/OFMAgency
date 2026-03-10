@@ -1,0 +1,43 @@
+---
+import { Hero } from '@/components/sections/hero';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { AboutIntro } from '@/components/sections/about-intro';
+import { CaseStudies } from '@/components/sections/case-studies';
+import { Logos } from '@/components/sections/logos';
+import { getAllProjects } from '@/lib/projects';
+import { getAllServices } from '@/lib/services';
+import { Services } from '@/components/sections/services';
+import { Features } from '@/components/sections/features';
+import { BentoDemo } from '@/components/sections/bento-demo';
+
+// Fetch data server-side in parallel for better performance
+const allProjects = await getAllProjects();
+
+// Use ProjectFrontmatter (serializable) instead of EnrichedProject (has React components)
+const heroProjects = allProjects.slice(0, 4);
+const caseStudyProjects = [
+  allProjects[0],
+  allProjects[1],
+  allProjects[4],
+].filter(Boolean);
+const logoProjects = [
+  allProjects[0],
+  allProjects[1],
+  allProjects[2],
+  allProjects[3],
+  allProjects[8],
+  allProjects[11],
+];
+---
+
+<DefaultLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+  <Hero projects={heroProjects} client:idle />
+  {/* <Features client:load /> */}
+  <AboutIntro />
+  <BentoDemo client:load />
+  <CaseStudies projects={caseStudyProjects} client:idle />
+  <Services />
+  <Logos projects={logoProjects} client:idle />
+</DefaultLayout>

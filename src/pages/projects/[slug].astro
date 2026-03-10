@@ -1,0 +1,66 @@
+---
+import { getEntry } from 'astro:content';
+import { SITE_TITLE } from '@/consts';
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { ProjectHero } from '@/components/sections/project-hero';
+import { ProjectOverview } from '@/components/sections/project-overview';
+import { ProjectGallery } from '@/components/sections/project-gallery';
+import { Process } from '@/components/sections/process';
+import { Cta } from '@/components/sections/cta';
+import { getProjectSlugs } from '@/lib/projects';
+import type { ProjectFrontmatter } from '@/lib/types';
+
+// Generate static paths for all projects
+export async function getStaticPaths() {
+  const slugs = await getProjectSlugs();
+  return slugs.map((slug) => ({
+    params: { slug },
+  }));
+}
+
+const { slug } = Astro.params;
+
+// Get project data
+const entry = await getEntry('projects', slug);
+
+if (!entry) {
+  return Astro.redirect('/404');
+}
+
+const frontmatter = entry.data as ProjectFrontmatter;
+
+// Use first image as hero, remaining as gallery
+const heroImage = frontmatter.images[0];
+const galleryImages = frontmatter.images.slice(1);
+
+const pageTitle = frontmatter.name + ' | ' + SITE_TITLE;
+const pageDescription = frontmatter.description || `View the ${frontmatter.name} project by Hive.`;
+---
+
+<DefaultLayout title={pageTitle} description={pageDescription}>
+  <ProjectHero title={frontmatter.name} image={heroImage} />
+
+  <ProjectOverview
+    title="Project overview"
+    description={frontmatter.description}
+    project={frontmatter}
+  />
+
+  {galleryImages.length >= 2 && (
+    <ProjectGallery images={galleryImages.slice(0, 2)} />
+  )}
+
+  {frontmatter.process && frontmatter.process.length > 0 && (
+    <Process
+      title={`${frontmatter.name} process`}
+      steps={frontmatter.process}
+      client:idle
+    />
+  )}
+
+  {galleryImages.length >= 4 && (
+    <ProjectGallery images={galleryImages.slice(2, 4)} />
+  )}
+
+  <Cta />
+</DefaultLayout>

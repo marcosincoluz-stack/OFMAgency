@@ -1,0 +1,41 @@
+---
+import BaseHead from '@/components/BaseHead.astro';
+import Footer from '@/components/layout/footer';
+import { Navbar } from '@/components/layout/navbar';
+
+const { title, description, frontmatter } = Astro.props;
+const pathname = Astro.url.pathname;
+
+const pageTitle = frontmatter?.title || title;
+---
+
+<html lang="en">
+  <head>
+    <BaseHead title={title} description={description} />
+  </head>
+  <body
+    class={`h-screen antialiased [--header-height:calc(var(--spacing)*14)] lg:[--header-height:calc(var(--spacing)*23)]`}
+  >
+    <Navbar pathname={pathname} client:load />
+    <main>
+      <section class="section-padding">
+        <div class="container">
+          <article class="space-y-6 md:space-y-8">
+            <h1
+              class="mb-10 text-4xl font-medium tracking-tighter md:mb-12 md:text-5xl md:leading-none lg:text-6xl"
+            >
+              {pageTitle}
+            </h1>
+
+            <div
+              class="prose prose-headings:text-2xl dark:prose-invert max-w-none leading-8"
+            >
+              <slot />
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+    <Footer client:idle />
+  </body>
+</html>

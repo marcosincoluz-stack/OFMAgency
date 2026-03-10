@@ -1,0 +1,205 @@
+---
+import { SITE_TITLE } from '../consts';
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { Process } from '@/components/sections/process';
+import { Cta } from '@/components/sections/cta';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+
+const pageTitle = 'About | ' + SITE_TITLE;
+const pageDescription = 'Learn about Hive - a logo design agency crafting timeless, versatile identities.';
+
+const teamMembers = [
+  {
+    name: 'Ethan Cole',
+    role: 'Creative Director',
+    image: {
+      src: '/images/about/team-1.webp',
+      alt: 'Ethan Cole',
+      className: 'object-[0%_35%]',
+    },
+  },
+  {
+    name: 'Maya Lopez',
+    role: 'Brand Designer',
+    image: { src: '/images/about/team-2.webp', alt: 'Maya Lopez' },
+  },
+  {
+    name: 'Daniel Novak',
+    role: 'Identity Strategist',
+    image: { src: '/images/about/team-3.webp', alt: 'Daniel Novak' },
+  },
+  {
+    name: 'Sofia Anders',
+    role: 'Client Manager',
+    image: { src: '/images/about/team-4.webp', alt: 'Sofia Anders' },
+  },
+  {
+    name: 'Liam Parker',
+    role: 'Marketing Lead',
+    image: {
+      src: '/images/about/team-5.webp',
+      alt: 'Liam Parker',
+      className: 'object-[0%_20%]',
+    },
+  },
+];
+
+const values = [
+  {
+    title: 'Clarity',
+    description: 'Design that communicates instantly.',
+  },
+  {
+    title: 'Simplicity',
+    description: 'Logos that are memorable and versatile.',
+  },
+  {
+    title: 'Quality',
+    description: 'Every detail refined, every mark crafted with care.',
+  },
+];
+
+const awards = [
+  {
+    title: 'Logo of the Year',
+    organization: 'Visual Identity Awards 2021',
+    badge: 'VIA 2021',
+  },
+  {
+    title: 'Top Branding Agency',
+    organization: 'Design Directory 2023',
+    badge: 'DD 2023',
+  },
+  {
+    title: 'Best Logo Design',
+    organization: 'Minimal Design Awards 2024',
+    badge: 'MDA 2024',
+  },
+];
+---
+
+<DefaultLayout title={pageTitle} description={pageDescription}>
+  <!-- Hero Section -->
+  <section class="hero-padding space-y-18 md:space-y-20 lg:space-y-26">
+    <h1 class="container text-center text-5xl md:text-6xl lg:text-7xl">
+      Designing the marks brands are known for.
+    </h1>
+
+    <div class="bigger-container">
+      <div class="relative h-[335px] w-full overflow-hidden md:h-[450px] lg:h-[900px]">
+        <img
+          src="/images/about/hero.webp"
+          alt="Hive team"
+          class="size-full object-cover object-top grayscale"
+          loading="eager"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- Our Story Section -->
+  <section class="section-padding container grid gap-10 md:grid-cols-2">
+    <h2 class="text-4xl">Our story</h2>
+    <div class="text-muted-foreground space-y-8 text-lg md:space-y-10">
+      <p>
+        Hive was built on a simple idea: every brand deserves a logo that
+        people remember. Too many businesses settle for visuals that feel
+        generic or forgettable. We wanted to change that.
+      </p>
+      <p>
+        What started as a small design studio has grown into a dedicated
+        agency focused entirely on logo and identity design. From our first
+        projects with local startups to collaborations with established
+        brands, our goal has stayed the same — to create logos that are
+        simple, timeless, and full of meaning.
+      </p>
+      <p>
+        Over the years, we've learned that a logo is more than a mark.
+        It's a signal of trust, a first impression, and often the most
+        visible part of a business. That's why we combine strategy and
+        creativity in everything we do — listening closely, researching
+        deeply, and designing with care.
+      </p>
+    </div>
+  </section>
+
+  <!-- Our Team Section -->
+  <section class="section-padding container space-y-16 md:space-y-18">
+    <h2 class="text-4xl">Our team</h2>
+
+    <div class="space-y-12">
+      <div class="grid gap-x-6 gap-y-8 md:grid-cols-3">
+        {teamMembers.slice(0, 3).map((member) => (
+          <div class="group flex flex-col gap-5">
+            <div class="relative h-[335px] w-full overflow-hidden sm:h-[392px] lg:h-[425px]">
+              <img
+                src={member.image.src}
+                alt={member.image.alt}
+                class={cn(
+                  'size-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0',
+                  member.image.className,
+                )}
+              />
+            </div>
+            <div class="flex flex-col gap-2">
+              <h3 class="text-lg">{member.name}</h3>
+              <p class="text-muted-foreground">{member.role}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="grid gap-x-6 gap-y-12 md:grid-cols-3">
+        {teamMembers.slice(3).map((member) => (
+          <div class="group flex flex-col gap-5">
+            <div class="relative h-[335px] w-full overflow-hidden sm:h-[392px] lg:h-[425px]">
+              <img
+                src={member.image.src}
+                alt={member.image.alt}
+                class={cn(
+                  'size-full object-cover grayscale transition-all duration-300 group-hover:grayscale-0',
+                  member.image.className,
+                )}
+              />
+            </div>
+            <div class="flex flex-col gap-2">
+              <h3 class="text-lg">{member.name}</h3>
+              <p class="text-muted-foreground">{member.role}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <Button variant="outline">
+      <a href="/careers">Open positions</a>
+    </Button>
+  </section>
+
+  <Process title="Values" steps={values} client:idle />
+
+  <!-- Awards Section -->
+  <section class="section-padding container space-y-16 md:space-y-18">
+    <h2 class="text-4xl">Awards</h2>
+
+    <div class="grid gap-x-6 gap-y-8 md:grid-cols-3">
+      {awards.map((award) => (
+        <div class="flex flex-col gap-5">
+          <Card className="bg-muted dark:bg-foreground/80 flex h-[335px] w-full items-center justify-center overflow-hidden border-none md:h-[392px]">
+            <div class="rounded-full border border-border/70 bg-background/80 px-8 py-4 text-xl font-semibold tracking-[0.18em] text-foreground">
+              {award.badge}
+            </div>
+          </Card>
+          <div class="flex flex-col gap-2">
+            <h3 class="text-lg">{award.title}</h3>
+            <p class="text-muted-foreground">{award.organization}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <Cta />
+</DefaultLayout>

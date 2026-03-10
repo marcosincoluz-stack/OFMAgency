@@ -1,0 +1,16 @@
+---
+import { SITE_TITLE } from '@/consts';
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { ProjectsGrid } from '@/components/sections/projects-grid';
+import { getAllProjects } from '@/lib/projects';
+
+// Fetch all projects server-side
+const allProjects = await getAllProjects();
+
+const pageTitle = 'Projects | ' + SITE_TITLE;
+const pageDescription = 'Explore our portfolio of logo design, brand identity, and icon design projects.';
+---
+
+<DefaultLayout title={pageTitle} description={pageDescription}>
+  <ProjectsGrid projects={allProjects} client:idle />
+</DefaultLayout>

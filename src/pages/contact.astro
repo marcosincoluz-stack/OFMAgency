@@ -1,0 +1,12 @@
+---
+import { SITE_TITLE } from '@/consts';
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { ContactForm } from '@/components/sections/contact-form';
+
+const pageTitle = 'Contact | ' + SITE_TITLE;
+const pageDescription = 'Get in touch with Hive to discuss your logo design, brand identity, or icon design project.';
+---
+
+<DefaultLayout title={pageTitle} description={pageDescription}>
+  <ContactForm client:load />
+</DefaultLayout>

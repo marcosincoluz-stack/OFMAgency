@@ -1,0 +1,83 @@
+---
+import { getEntry } from 'astro:content';
+import { SITE_TITLE } from '@/consts';
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { ServiceHero } from '@/components/sections/service-hero';
+import { ServiceWhatYouGet } from '@/components/sections/service-what-you-get';
+import { Process } from '@/components/sections/process';
+import { ServiceFeaturedWork } from '@/components/sections/service-featured-work';
+import { Testimonials } from '@/components/sections/testimonials';
+import { Cta } from '@/components/sections/cta';
+import {
+  BrandIdentityIcon,
+  DiamondShapesIcon,
+  DropletIcon,
+  LogoDesignIcon,
+} from '@/components/icons/service-icons';
+import { getServiceSlugs, resolveFeaturedWork } from '@/lib/services';
+import type { ServiceFrontmatter } from '@/lib/types';
+
+// Icon mapping
+const iconMap = {
+  LogoDesignIcon,
+  BrandIdentityIcon,
+  DropletIcon,
+  DiamondShapesIcon,
+};
+
+// Generate static paths for all services
+export async function getStaticPaths() {
+  const slugs = await getServiceSlugs();
+  return slugs.map((slug) => ({
+    params: { slug },
+  }));
+}
+
+const { slug } = Astro.params;
+
+// Get service data
+const entry = await getEntry('services', slug);
+
+if (!entry) {
+  return Astro.redirect('/404');
+}
+
+const frontmatter = entry.data as ServiceFrontmatter;
+
+// Map icon names to actual icon components
+const mappedWhatYouGet = frontmatter.whatYouGet.map((item) => ({
+  ...item,
+  icon: iconMap[item.icon as keyof typeof iconMap] || LogoDesignIcon,
+}));
+
+// Resolve featured work (auto-filter or custom selection)
+const featuredWorkItems = await resolveFeaturedWork(frontmatter);
+
+const pageTitle = frontmatter.pageTitle + ' | ' + SITE_TITLE;
+const pageDescription = frontmatter.description;
+---
+
+<DefaultLayout title={pageTitle} description={pageDescription}>
+  <ServiceHero title={frontmatter.pageTitle} image={frontmatter.heroImage} />
+
+  <section class="section-padding container grid gap-10 md:grid-cols-2">
+    <h2 class="text-4xl">{frontmatter.title}</h2>
+    <p class="text-muted-foreground text-lg">
+      {frontmatter.description}
+    </p>
+  </section>
+
+  <ServiceWhatYouGet items={mappedWhatYouGet} />
+
+  <Process
+    title={`${frontmatter.title} process`}
+    steps={frontmatter.process}
+    client:idle
+  />
+
+  <ServiceFeaturedWork items={featuredWorkItems} />
+
+  <Testimonials />
+
+  <Cta />
+</DefaultLayout>
