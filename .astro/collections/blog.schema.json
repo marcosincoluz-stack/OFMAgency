@@ -4,6 +4,13 @@
     "blog": {
       "type": "object",
       "properties": {
+        "locale": {
+          "type": "string",
+          "enum": [
+            "es",
+            "en"
+          ]
+        },
         "title": {
           "type": "string"
         },
@@ -66,6 +73,12 @@
         },
         "coverImage": {
           "type": "string"
+        },
+        "keyPoints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "$schema": {
           "type": "string"

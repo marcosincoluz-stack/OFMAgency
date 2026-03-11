@@ -1,6 +1,7 @@
 'use client';
 
-import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
+
 import type { LucideIcon } from 'lucide-react';
 import {
   Bell,
@@ -14,11 +15,11 @@ import {
   Wallet,
 } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
 import { AnimatedList } from '@/components/magicui/animated-list';
 import { CommentReplyCard } from '@/components/sections/comment-reply-card';
 import type { Locale, Market } from '@/lib/i18n';
 import { getDictionary } from '@/lib/i18n-dictionary';
+import { cn } from '@/lib/utils';
 
 type BentoFeature = {
   Icon: LucideIcon;
@@ -79,7 +80,8 @@ const bentoConfig: Record<Locale, Record<Market, BentoMarketConfig>> = {
       },
       integrations: {
         name: 'Blindaje de Privacidad',
-        description: 'Geobloqueo estricto y eliminacion de contenido filtrado (DMCA) 24/7.',
+        description:
+          'Si te preocupa que te reconozcan en tu ciudad o pais, aplicamos geobloqueo por zonas, protocolos de identidad y retirada DMCA 24/7.',
       },
       globe: {
         name: 'Audiencia Global',
@@ -101,7 +103,8 @@ const bentoConfig: Record<Locale, Record<Market, BentoMarketConfig>> = {
       },
       integrations: {
         name: 'Blindaje de Privacidad',
-        description: 'Geobloqueo y gestion DMCA 24/7 para proteger tu contenido.',
+        description:
+          'Si te da miedo exponerte en tu ciudad o pais, activamos geobloqueo local, proteccion de identidad y respuesta DMCA 24/7.',
       },
       globe: {
         name: 'Audiencia Global',
@@ -123,7 +126,8 @@ const bentoConfig: Record<Locale, Record<Market, BentoMarketConfig>> = {
       },
       integrations: {
         name: 'Blindaje de Privacidad',
-        description: 'Geobloqueo estricto y eliminacion de contenido filtrado (DMCA) 24/7.',
+        description:
+          'Si te preocupa aparecer en tu ciudad o pais, trabajamos con geobloqueo por zonas, protocolos de identidad y retirada DMCA 24/7.',
       },
       globe: {
         name: 'Audiencia Global',
@@ -509,24 +513,53 @@ function Globe3DPreview({
   title: string;
   description: string;
 }) {
-  const [shouldRenderGlobe, setShouldRenderGlobe] = useState(false);
+  const previewRef = useRef<HTMLDivElement | null>(null);
+  const [allowMotion, setAllowMotion] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isInView, setIsInView] = useState(false);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia(
-      '(min-width: 1024px) and (prefers-reduced-motion: no-preference)',
-    );
-    const update = () => setShouldRenderGlobe(mediaQuery.matches);
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: no-preference)');
+    const mobileQuery = window.matchMedia('(max-width: 768px)');
+    const update = () => {
+      setAllowMotion(motionQuery.matches);
+      setIsMobile(mobileQuery.matches);
+    };
 
     update();
-    mediaQuery.addEventListener?.('change', update);
+    motionQuery.addEventListener?.('change', update);
+    mobileQuery.addEventListener?.('change', update);
 
     return () => {
-      mediaQuery.removeEventListener?.('change', update);
+      motionQuery.removeEventListener?.('change', update);
+      mobileQuery.removeEventListener?.('change', update);
     };
   }, []);
 
+  useEffect(() => {
+    const target = previewRef.current;
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setIsInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px 0px' },
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
+
+  const shouldRenderGlobe = allowMotion && isInView;
+  const globeMarkers = isMobile ? sampleMarkers.slice(0, 8) : sampleMarkers;
+
   return (
     <div
+      ref={previewRef}
       className={cn(
         'relative h-[400px] w-full max-w-lg overflow-hidden rounded-xl bg-white p-10 shadow-sm ring-1 shadow-black/10 ring-black/10 dark:bg-neutral-900',
         className,
@@ -545,14 +578,20 @@ function Globe3DPreview({
           }
         >
           <LazyGlobe3D
-            className="absolute -bottom-96 -left-0 h-[700px]"
-            markers={sampleMarkers}
+            className={cn(
+              'absolute -left-0',
+              isMobile ? '-bottom-72 h-[520px]' : '-bottom-96 h-[700px]',
+            )}
+            markers={globeMarkers}
             config={{
               atmosphereColor: '#4da6ff',
-              atmosphereIntensity: 20,
-              bumpScale: 5,
-              autoRotateSpeed: 0.3,
+              atmosphereIntensity: isMobile ? 12 : 20,
+              bumpScale: isMobile ? 2.5 : 5,
+              autoRotateSpeed: isMobile ? 0.12 : 0.3,
               initialRotation: { x: 0, y: -0.7 },
+              markerSize: isMobile ? 0.035 : 0.05,
+              enableZoom: false,
+              enablePan: false,
             }}
           />
         </Suspense>

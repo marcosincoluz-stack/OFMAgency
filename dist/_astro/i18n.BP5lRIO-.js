@@ -1,0 +1,1 @@
+const i=["es","en"];function s(t){return t?i.includes(t):!1}function e(t){const r=t.split("/").filter(Boolean);if(r.length===0)return"/";if(s(r[0])){const n=r.slice(1).join("/");return n?`/${n}`:"/"}return t.startsWith("/")?t:`/${t}`}function o(t,r){const n=e(t);return n==="/"?`/${r}`:`/${r}${n}`}function c(t,r){return r.startsWith("/")?o(r,t):r}export{c as l,e as s,o as w};

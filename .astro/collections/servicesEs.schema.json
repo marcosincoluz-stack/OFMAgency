@@ -1,0 +1,112 @@
+{
+  "$ref": "#/definitions/servicesEs",
+  "definitions": {
+    "servicesEs": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "pageTitle": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "heroImage": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "shortDescription": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "featuredWork": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "whatYouGet": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "icon": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "image": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "icon",
+              "title",
+              "description"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "process": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "image": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "title",
+              "description"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "pageTitle",
+        "description",
+        "slug",
+        "heroImage",
+        "image",
+        "icon",
+        "shortDescription",
+        "tags",
+        "whatYouGet",
+        "process"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

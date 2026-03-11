@@ -1,7 +1,8 @@
 'use client';
 
-import { ArrowLeft, ArrowRight } from 'lucide-react';
 import React from 'react';
+
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 import {
   Logo1,
@@ -14,9 +15,9 @@ import {
   Logo8,
   Logo9,
 } from '@/components/icons/logos';
-import { Button } from '@/components/ui/button';
 import { Iphone } from '@/components/magicui/iphone';
 import { Safari } from '@/components/magicui/safari';
+import { Button } from '@/components/ui/button';
 import {
   Carousel,
   type CarouselApi,
@@ -25,8 +26,8 @@ import {
 } from '@/components/ui/carousel';
 import type { Locale } from '@/lib/i18n';
 import { getDictionary } from '@/lib/i18n-dictionary';
-import { cn } from '@/lib/utils';
 import type { ProjectFrontmatter } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 const logoMap = {
   Logo1,
@@ -47,6 +48,7 @@ export function CaseStudyCarousel({
   shiftIphoneLeft = false,
   initialSlide = 0,
   locale = 'es',
+  slideOverrides,
 }: {
   project: ProjectFrontmatter;
   useIcon: boolean;
@@ -54,6 +56,14 @@ export function CaseStudyCarousel({
   shiftIphoneLeft?: boolean;
   initialSlide?: number;
   locale?: Locale;
+  slideOverrides?: Record<
+    number,
+    {
+      useIcon?: boolean;
+      hidePrevItem?: boolean;
+      shiftIphoneLeft?: boolean;
+    }
+  >;
 }) {
   const totalSlides = project.images.length;
   const hasFewSlides = totalSlides <= 2;
@@ -113,6 +123,11 @@ export function CaseStudyCarousel({
         className={cn('relative ml-0! cursor-grab', isMoving ? 'z-10' : '')}
       >
         {project.images.map((image, index) => {
+          const slideOverride = slideOverrides?.[index];
+          const shouldUseIcon = slideOverride?.useIcon ?? useIcon;
+          const shouldHidePrevItem = slideOverride?.hidePrevItem ?? hidePrevItem;
+          const shouldShiftIphoneLeft =
+            slideOverride?.shiftIphoneLeft ?? shiftIphoneLeft;
           const nextIndex = (current + 1) % totalSlides;
           const prevIndex = (current - 1 + totalSlides) % totalSlides;
           const isCurrent = index === current;
@@ -156,7 +171,7 @@ export function CaseStudyCarousel({
                 className={cn(
                   'container flex flex-col gap-16 transition-all duration-300',
                   isReversed ? 'md:flex-row-reverse' : 'md:flex-row',
-                  prevIndex === index && hidePrevItem ? '2xl:opacity-0' : '',
+                  prevIndex === index && shouldHidePrevItem ? '2xl:opacity-0' : '',
                 )}
               >
                 <div className="flex-1">
@@ -171,7 +186,7 @@ export function CaseStudyCarousel({
                   <div
                     className={cn(
                       'flex w-full items-center justify-center py-4 md:w-auto md:flex-none md:py-0',
-                      shiftIphoneLeft &&
+                      shouldShiftIphoneLeft &&
                         'md:justify-start md:-ml-24 lg:-ml-32 xl:-ml-40 2xl:-ml-48',
                     )}
                   >
@@ -237,7 +252,7 @@ export function CaseStudyCarousel({
                       fetchPriority={isCurrent ? 'high' : 'auto'}
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      {useIcon ? (
+                      {shouldUseIcon ? (
                         <ProjectLogo
                           className="flex h-24 text-white"
                           wordmarkClassName="hidden"

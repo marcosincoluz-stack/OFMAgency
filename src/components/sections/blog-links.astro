@@ -1,0 +1,80 @@
+---
+import type { BlogPostEntry } from '@/lib/blog';
+import { localizeHref, type Locale } from '@/lib/i18n';
+
+interface Props {
+  posts: BlogPostEntry[];
+  locale?: Locale;
+}
+
+const { posts, locale = 'es' } = Astro.props;
+const visiblePosts = posts.slice(0, 3);
+---
+
+{
+  visiblePosts.length > 0 && (
+    <section class="container space-y-6 py-14 md:py-16">
+      <div class="flex items-end justify-between gap-4">
+        <div class="space-y-2">
+          <p class="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            {locale === 'es' ? 'Modo blog' : 'Blog mode'}
+          </p>
+          <h2 class="text-3xl tracking-tight md:text-4xl">
+            {locale === 'es'
+              ? 'Guias para escalar sin improvisar'
+              : 'Guides to scale without guessing'}
+          </h2>
+          <p class="max-w-2xl text-sm text-muted-foreground md:text-base">
+            {locale === 'es'
+              ? 'Accede a posts tacticos sobre conversion en DMs, retencion y privacidad.'
+              : 'Read tactical posts on DM conversion, retention and privacy.'}
+          </p>
+        </div>
+        <a
+          href={localizeHref(locale, '/blog')}
+          class="hidden text-sm font-medium text-foreground/90 transition-opacity hover:opacity-75 md:inline-flex"
+        >
+          {locale === 'es' ? 'Ver todos los posts' : 'View all posts'}
+        </a>
+      </div>
+
+      <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {
+          visiblePosts.map((post) => (
+            <a
+              href={localizeHref(locale, `/blog/${post.id}`)}
+              class="group overflow-hidden rounded-2xl border border-border/60 bg-card/60 transition-colors hover:border-foreground/25"
+            >
+              <img
+                src={post.data.coverImage ?? '/images/homepage/hero/new1.webp'}
+                alt={post.data.title}
+                class="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div class="space-y-3 p-5">
+                <p class="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                  {new Date(post.data.date).toLocaleDateString(
+                    locale === 'es' ? 'es-ES' : 'en-US',
+                    {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                    },
+                  )}
+                </p>
+                <h3 class="text-xl leading-tight tracking-tight">{post.data.title}</h3>
+                <p class="line-clamp-3 text-sm text-muted-foreground">{post.data.description}</p>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+
+      <a
+        href={localizeHref(locale, '/blog')}
+        class="inline-flex text-sm font-medium text-foreground/90 transition-opacity hover:opacity-75 md:hidden"
+      >
+        {locale === 'es' ? 'Ver todos los posts' : 'View all posts'}
+      </a>
+    </section>
+  )
+}

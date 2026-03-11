@@ -57,21 +57,39 @@ export const CaseStudies = ({ projects, locale = 'es' }: CaseStudiesProps) => {
     }),
   };
 
+  const firstImages = firstCarouselProject.images;
+  const secondImages = secondCarouselProject.images;
+  const mergedImages = [...firstImages, ...secondImages];
+
+  if (mergedImages.length === 0) return null;
+
+  const secondCarouselStartIndex = firstImages.length;
+  const slideOverrides: Record<
+    number,
+    { useIcon?: boolean; hidePrevItem?: boolean; shiftIphoneLeft?: boolean }
+  > = {};
+
+  secondImages.forEach((_, offset) => {
+    slideOverrides[secondCarouselStartIndex + offset] = {
+      useIcon: true,
+      hidePrevItem: true,
+      shiftIphoneLeft: true,
+    };
+  });
+
+  const mergedCarouselProject = {
+    ...firstCarouselProject,
+    images: mergedImages,
+  };
+
   return (
     <section className="overflow-hidden">
       <CaseStudyCarousel
-        project={firstCarouselProject}
+        project={mergedCarouselProject}
         useIcon={false}
         initialSlide={0}
         locale={locale}
-      />
-      <CaseStudyCarousel
-        project={secondCarouselProject}
-        useIcon={true}
-        hidePrevItem={true}
-        shiftIphoneLeft={true}
-        initialSlide={0}
-        locale={locale}
+        slideOverrides={slideOverrides}
       />
     </section>
   );

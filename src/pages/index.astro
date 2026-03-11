@@ -1,18 +1,22 @@
 ---
-import { Hero } from '@/components/sections/hero';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 
-import DefaultLayout from '@/layouts/DefaultLayout.astro';
 import { AboutIntro } from '@/components/sections/about-intro';
-import { CaseStudies } from '@/components/sections/case-studies';
-import { Logos } from '@/components/sections/logos';
-import { getAllProjects } from '@/lib/projects';
 import { BentoDemo } from '@/components/sections/bento-demo';
-import { Testimonials } from '@/components/sections/testimonials';
+import BlogLinks from '@/components/sections/blog-links.astro';
+import { CaseStudies } from '@/components/sections/case-studies';
 import { Cta } from '@/components/sections/cta';
+import { Hero } from '@/components/sections/hero';
+import { Testimonials } from '@/components/sections/testimonials';
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { getAllBlogPosts } from '@/lib/blog';
+import { DEFAULT_LOCALE, type Locale } from '@/lib/i18n';
+import { getAllProjects } from '@/lib/projects';
 
 // Fetch data server-side in parallel for better performance
+const locale: Locale = Astro.locals.locale ?? DEFAULT_LOCALE;
 const allProjects = await getAllProjects();
+const blogPosts = await getAllBlogPosts(locale);
 const compactProjects = allProjects.map((project) => ({
   id: project.id,
   name: project.name,
@@ -36,14 +40,6 @@ const caseStudyProjects = [
   compactProjects.find((project) => project.slug === 'nextdock'),
   compactProjects.find((project) => project.slug === 'nextdock'),
 ].filter(Boolean);
-const logoProjects = [
-  compactProjects[0],
-  compactProjects[1],
-  compactProjects[2],
-  compactProjects[3],
-  compactProjects[8],
-  compactProjects[11],
-].filter(Boolean);
 ---
 
 <DefaultLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
@@ -60,10 +56,10 @@ const logoProjects = [
   <div class="[content-visibility:auto] [contain-intrinsic-size:860px]">
     <Testimonials />
   </div>
+  <div class="[content-visibility:auto] [contain-intrinsic-size:680px]">
+    <BlogLinks posts={blogPosts} locale={locale} />
+  </div>
   <div class="[content-visibility:auto] [contain-intrinsic-size:420px]">
     <Cta />
-  </div>
-  <div class="[content-visibility:auto] [contain-intrinsic-size:700px]">
-    <Logos projects={logoProjects} client:visible />
   </div>
 </DefaultLayout>

@@ -1,15 +1,16 @@
 ---
-import { Hero } from '@/components/sections/hero';
-import DefaultLayout from '@/layouts/DefaultLayout.astro';
 import { AboutIntro } from '@/components/sections/about-intro';
-import { CaseStudies } from '@/components/sections/case-studies';
-import { Logos } from '@/components/sections/logos';
-import { getAllProjects } from '@/lib/projects';
 import { BentoDemo } from '@/components/sections/bento-demo';
-import { Testimonials } from '@/components/sections/testimonials';
+import BlogLinks from '@/components/sections/blog-links.astro';
+import { CaseStudies } from '@/components/sections/case-studies';
 import { Cta } from '@/components/sections/cta';
+import { Hero } from '@/components/sections/hero';
+import { Testimonials } from '@/components/sections/testimonials';
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { getAllBlogPosts } from '@/lib/blog';
 import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/lib/i18n';
 import { getDictionary } from '@/lib/i18n-dictionary';
+import { getAllProjects } from '@/lib/projects';
 
 export async function getStaticPaths() {
   return SUPPORTED_LOCALES.map((locale) => ({ params: { locale } }));
@@ -25,6 +26,7 @@ const market = Astro.locals.market;
 const dict = getDictionary(locale);
 
 const allProjects = await getAllProjects(locale);
+const blogPosts = await getAllBlogPosts(locale);
 const compactProjects = allProjects.map((project) => ({
   id: project.id,
   name: project.name,
@@ -47,14 +49,6 @@ const caseStudyProjects = [
   compactProjects.find((project) => project.slug === 'nextdock'),
   compactProjects.find((project) => project.slug === 'nextdock'),
 ].filter(Boolean);
-const logoProjects = [
-  compactProjects[0],
-  compactProjects[1],
-  compactProjects[2],
-  compactProjects[3],
-  compactProjects[8],
-  compactProjects[11],
-].filter(Boolean);
 ---
 
 <DefaultLayout
@@ -75,10 +69,10 @@ const logoProjects = [
   <div class="[content-visibility:auto] [contain-intrinsic-size:860px]">
     <Testimonials locale={locale} />
   </div>
+  <div class="[content-visibility:auto] [contain-intrinsic-size:680px]">
+    <BlogLinks posts={blogPosts} locale={locale} />
+  </div>
   <div class="[content-visibility:auto] [contain-intrinsic-size:420px]">
     <Cta locale={locale} />
-  </div>
-  <div class="[content-visibility:auto] [contain-intrinsic-size:700px]">
-    <Logos projects={logoProjects} client:visible />
   </div>
 </DefaultLayout>

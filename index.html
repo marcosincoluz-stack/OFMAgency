@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generador de Contratos - Velour®</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #090b0f;
+        --bg-soft: #11141a;
+        --panel: #12161e;
+        --line: #2a303a;
+        --text: #f4f7fb;
+        --muted: #a9b1bc;
+        --accent: #d3d8df;
+        --accent-dark: #0d1015;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 0% 0%, #161b25 0%, transparent 42%),
+          radial-gradient(circle at 100% 90%, #121721 0%, transparent 38%),
+          var(--bg);
+      }
+
+      .page {
+        width: min(980px, 92vw);
+        margin: 0 auto;
+        padding: 42px 0 56px;
+      }
+
+      .brand-row {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand-logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid #343b47;
+        background: #fff;
+        object-fit: cover;
+      }
+
+      .brand-name {
+        margin: 0;
+        font-size: clamp(1.4rem, 2.1vw, 2.1rem);
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 18px 0 10px;
+        font-size: clamp(1.3rem, 2vw, 1.95rem);
+        line-height: 1.2;
+      }
+
+      .subtitle {
+        margin: 0 0 24px;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: linear-gradient(180deg, #171c25 0%, #0f131a 100%);
+        padding: 22px;
+        box-shadow:
+          0 16px 34px rgba(0, 0, 0, 0.35),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+
+      .controls {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-bottom: 16px;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .field label {
+        font-size: 0.84rem;
+        color: var(--muted);
+      }
+
+      .field input {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid #333945;
+        background: #0d1117;
+        color: #e9edf2;
+        padding: 10px 12px;
+        font-size: 0.93rem;
+        font-family: inherit;
+      }
+
+      .field input:focus {
+        outline: none;
+        border-color: #5c6473;
+      }
+
+      .preview {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #0f141b;
+        overflow: hidden;
+      }
+
+      .preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        background: #0c1016;
+      }
+
+      .preview-header p {
+        margin: 0;
+      }
+
+      .preview-header .meta {
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .preview-body {
+        padding: 16px;
+        color: #e7ecf3;
+      }
+
+      .preview-body p {
+        margin: 0 0 10px;
+        line-height: 1.65;
+      }
+
+      .preview-body ul {
+        margin: 0 0 10px;
+        padding-left: 20px;
+      }
+
+      .preview-body li {
+        margin-bottom: 6px;
+        line-height: 1.55;
+      }
+
+      .actions {
+        margin-top: 16px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .cta {
+        border: 0;
+        border-radius: 12px;
+        padding: 13px 21px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        color: #f6f7f9;
+        background: linear-gradient(180deg, #232a34 0%, #151a22 100%);
+        border: 1px solid #3c4453;
+        transition:
+          transform 0.15s ease,
+          border-color 0.2s ease,
+          opacity 0.2s ease;
+      }
+
+      .cta:hover {
+        transform: translateY(-1px);
+        border-color: #586273;
+      }
+
+      .cta:active {
+        transform: translateY(1px);
+      }
+
+      .cta:disabled {
+        opacity: 0.7;
+        cursor: wait;
+      }
+
+      .status {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+        min-height: 1.3em;
+      }
+
+      @media (max-width: 860px) {
+        .controls {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <div class="brand-row">
+        <img id="brandLogo" class="brand-logo" src="public/favicon/favicon-96x96.png" alt="Logo Velour®" />
+        <p class="brand-name">Velour®</p>
+      </div>
+
+      <h1>Generador de Contratos - Velour®</h1>
+      <p class="subtitle">
+        Documento legal en PDF con maquetación profesional, cabecera corporativa y descarga inmediata.
+      </p>
+
+      <section class="panel" aria-labelledby="panelTitle">
+        <h2 id="panelTitle" style="margin: 0 0 14px; font-size: 1rem; font-weight: 600">Datos del acuerdo</h2>
+
+        <div class="controls">
+          <div class="field">
+            <label for="creatorName">Nombre de la Creadora</label>
+            <input id="creatorName" type="text" placeholder="Ej: Martina López" />
+          </div>
+
+          <div class="field">
+            <label for="logoFile">Logo para el PDF (opcional)</label>
+            <input id="logoFile" type="file" accept="image/*" />
+          </div>
+        </div>
+
+        <article class="preview">
+          <div class="preview-header">
+            <p><strong>Previsualización del contrato</strong></p>
+            <p class="meta" id="previewDate"></p>
+          </div>
+
+          <div class="preview-body">
+            <p><strong>ACUERDO DE REPRESENTACIÓN Y GESTIÓN - VELOUR®</strong></p>
+            <p><strong>1. Partes Involucradas</strong></p>
+            <p>
+              La Agencia: Velour®.<br />
+              La Creadora: <span id="previewCreatorName">[Nombre a rellenar]</span><br />
+              Fecha: <span id="previewCurrentDate"></span>
+            </p>
+
+            <p><strong>2. Objeto del Contrato</strong></p>
+            <p>La Creadora otorga a la Agencia los derechos exclusivos para gestionar, operar y comercializar sus cuentas de OnlyFans.</p>
+
+            <p><strong>3. Obligaciones de la Agencia (Velour®)</strong></p>
+            <ul>
+              <li>Proporcionar un equipo de chatters para operar la cuenta.</li>
+              <li>Generar tráfico hacia el perfil de la creadora.</li>
+              <li>Gestionar el backend y la organización del contenido.</li>
+              <li>Cubrir todos los costes relacionados con marketing y equipo.</li>
+              <li>Garantizar la privacidad y seguridad de la operativa (100% Privacy &amp; Security Guarantee).</li>
+            </ul>
+          </div>
+        </article>
+
+        <div class="actions">
+          <button id="downloadBtn" class="cta" type="button">Generar y Descargar PDF</button>
+          <p id="statusText" class="status"></p>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+      const defaultLogoCandidates = [
+        "public/favicon/favicon-96x96.png",
+        "./favicon/favicon-96x96.png",
+        "/favicon/favicon-96x96.png",
+      ];
+
+      const logoElement = document.getElementById("brandLogo");
+      const creatorNameInput = document.getElementById("creatorName");
+      const logoFileInput = document.getElementById("logoFile");
+      const previewDateElement = document.getElementById("previewDate");
+      const previewCurrentDateElement = document.getElementById("previewCurrentDate");
+      const previewCreatorNameElement = document.getElementById("previewCreatorName");
+      const downloadBtn = document.getElementById("downloadBtn");
+      const statusText = document.getElementById("statusText");
+
+      let uploadedLogoDataUrl = null;
+      let logoCandidateIndex = 0;
+
+      function formatCurrentDate() {
+        return new Date().toLocaleDateString("es-ES", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      }
+
+      function getCreatorName() {
+        const name = creatorNameInput.value.trim();
+        return name || "[Nombre a rellenar]";
+      }
+
+      function updatePreview() {
+        const currentDate = formatCurrentDate();
+        previewDateElement.textContent = `Fecha: ${currentDate}`;
+        previewCurrentDateElement.textContent = currentDate;
+        previewCreatorNameElement.textContent = getCreatorName();
+      }
+
+      function getImageElementDataUrl(img) {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const context = canvas.getContext("2d");
+        context.drawImage(img, 0, 0);
+        return canvas.toDataURL("image/png");
+      }
+
+      async function loadImageAsDataUrl(src) {
+        return new Promise((resolve, reject) => {
+          const image = new Image();
+          image.onload = () => {
+            try {
+              resolve(getImageElementDataUrl(image));
+            } catch (error) {
+              reject(error);
+            }
+          };
+          image.onerror = reject;
+          image.src = src;
+        });
+      }
+
+      async function resolveLogoDataUrl() {
+        if (uploadedLogoDataUrl) {
+          return uploadedLogoDataUrl;
+        }
+
+        if (logoElement.complete && logoElement.naturalWidth > 0) {
+          try {
+            return getImageElementDataUrl(logoElement);
+          } catch {
+            return null;
+          }
+        }
+
+        for (const candidate of defaultLogoCandidates) {
+          try {
+            return await loadImageAsDataUrl(candidate);
+          } catch {
+            continue;
+          }
+        }
+
+        return null;
+      }
+
+      function drawPageHeader(doc, options) {
+        const { pageWidth, marginX, headerY, headerH, dateLabel, logoDataUrl, isFirstPage, pageNumber } = options;
+
+        doc.setFillColor(13, 16, 21);
+        doc.roundedRect(marginX, headerY, pageWidth - marginX * 2, headerH, 2.2, 2.2, "F");
+
+        const contentY = headerY + 8;
+        let textStartX = marginX + 6;
+
+        if (logoDataUrl && isFirstPage) {
+          doc.setFillColor(255, 255, 255);
+          doc.roundedRect(marginX + 4, headerY + 4, 12, 12, 1.4, 1.4, "F");
+          doc.addImage(logoDataUrl, "PNG", marginX + 5, headerY + 5, 10, 10);
+          textStartX = marginX + 19;
+        }
+
+        doc.setTextColor(246, 248, 251);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(isFirstPage ? 12.5 : 10.2);
+        doc.text("VELOUR®", textStartX, contentY);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9.2);
+        doc.setTextColor(210, 217, 227);
+        doc.text("Acuerdo de Representación y Gestión", textStartX, contentY + 4.2);
+
+        doc.setFontSize(8.4);
+        doc.setTextColor(185, 194, 206);
+        const rightInfo = isFirstPage ? dateLabel : `Página ${pageNumber}`;
+        doc.text(rightInfo, pageWidth - marginX - 6, headerY + 7.8, { align: "right" });
+      }
+
+      function drawFooter(doc, pageWidth, pageHeight, pageNumber, totalPages) {
+        doc.setDrawColor(220, 223, 228);
+        doc.line(18, pageHeight - 14, pageWidth - 18, pageHeight - 14);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8.2);
+        doc.setTextColor(122, 130, 141);
+        doc.text(`Velour®  |  Documento interno  |  ${pageNumber}/${totalPages}`, pageWidth / 2, pageHeight - 8.9, {
+          align: "center",
+        });
+      }
+
+      async function generatePdf() {
+        downloadBtn.disabled = true;
+        statusText.textContent = "Generando PDF profesional...";
+
+        try {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+
+          const pageWidth = doc.internal.pageSize.getWidth();
+          const pageHeight = doc.internal.pageSize.getHeight();
+          const marginX = 18;
+          const marginBottom = 20;
+          const lineHeight = 4.8;
+          const bulletIndent = 4.8;
+          const textIndent = 9;
+
+          const currentDate = formatCurrentDate();
+          const creatorName = getCreatorName();
+          const logoDataUrl = await resolveLogoDataUrl();
+
+          let pageNumber = 1;
+          let y = 0;
+
+          const addNewPage = (isFirstPage = false) => {
+            if (!isFirstPage) {
+              doc.addPage();
+              pageNumber += 1;
+            }
+            const headerY = 12;
+            const headerH = isFirstPage ? 22 : 16;
+            drawPageHeader(doc, {
+              pageWidth,
+              marginX,
+              headerY,
+              headerH,
+              dateLabel: currentDate,
+              logoDataUrl,
+              isFirstPage,
+              pageNumber,
+            });
+            y = headerY + headerH + 9;
+            doc.setTextColor(24, 28, 35);
+          };
+
+          const ensureSpace = (requiredHeight) => {
+            if (y + requiredHeight > pageHeight - marginBottom) {
+              addNewPage(false);
+            }
+          };
+
+          const writeTitle = (text) => {
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(13.2);
+            const lines = doc.splitTextToSize(text, pageWidth - marginX * 2);
+            ensureSpace(lines.length * 6 + 1);
+            doc.text(lines, marginX, y);
+            y += lines.length * 6.2 + 2;
+          };
+
+          const writeSectionTitle = (text) => {
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(11.2);
+            const lines = doc.splitTextToSize(text, pageWidth - marginX * 2);
+            ensureSpace(lines.length * 5 + 2);
+            doc.text(lines, marginX, y);
+            y += lines.length * 5 + 1.6;
+          };
+
+          const writeParagraph = (text) => {
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10.6);
+            const lines = doc.splitTextToSize(text, pageWidth - marginX * 2);
+            ensureSpace(lines.length * lineHeight + 1);
+            doc.text(lines, marginX, y);
+            y += lines.length * lineHeight + 1.3;
+          };
+
+          const writeBullet = (text) => {
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10.4);
+            const lines = doc.splitTextToSize(text, pageWidth - marginX * 2 - textIndent);
+            const blockHeight = lines.length * lineHeight + 1;
+            ensureSpace(blockHeight);
+            doc.setFillColor(24, 28, 35);
+            doc.circle(marginX + bulletIndent, y - 1.35, 0.62, "F");
+            doc.text(lines, marginX + textIndent, y);
+            y += blockHeight;
+          };
+
+          addNewPage(true);
+
+          writeTitle("ACUERDO DE REPRESENTACIÓN Y GESTIÓN - VELOUR®");
+
+          writeSectionTitle("1. Partes Involucradas");
+          writeParagraph("La Agencia: Velour®.");
+          writeParagraph(`La Creadora: ${creatorName}`);
+          writeParagraph(`Fecha: ${currentDate}`);
+
+          writeSectionTitle("2. Objeto del Contrato");
+          writeParagraph(
+            "La Creadora otorga a la Agencia los derechos exclusivos para gestionar, operar y comercializar sus cuentas de OnlyFans.",
+          );
+
+          writeSectionTitle("3. Obligaciones de la Agencia (Velour®)");
+          writeBullet("Proporcionar un equipo de chatters para operar la cuenta.");
+          writeBullet("Generar tráfico hacia el perfil de la creadora.");
+          writeBullet("Gestionar el backend y la organización del contenido.");
+          writeBullet("Cubrir todos los costes relacionados con marketing y equipo.");
+          writeBullet("Garantizar la privacidad y seguridad de la operativa (100% Privacy & Security Guarantee).");
+
+          writeSectionTitle("4. Obligaciones de la Creadora");
+          writeBullet("Producir contenido semanal según lo solicitado por la Agencia.");
+          writeBullet("Estar disponible y receptiva para la operativa.");
+          writeBullet("Utilizar el equipo adecuado para la creación de contenido.");
+          writeBullet("No interactuar de forma independiente con los suscriptores fuera de la plataforma ni eludir a la agencia.");
+
+          writeSectionTitle("5. Condiciones Financieras y Reparto (Split)");
+          writeBullet(
+            "Reparto de Ingresos: El 50% de los ingresos totales será pagado a la Creadora y el 50% será pagado a la Agencia.",
+          );
+
+          writeSectionTitle("6. Confidencialidad y Propiedad Intelectual");
+          writeBullet("La Agencia mantendrá la máxima confidencialidad sobre los datos personales.");
+          writeBullet(
+            "La Agencia tiene licencia total para usar, editar y distribuir el contenido con fines de marketing durante la vigencia del acuerdo.",
+          );
+
+          writeSectionTitle("7. Duración");
+          writeBullet("Plazo Inicial: 6 meses, renovables automáticamente.");
+
+          ensureSpace(28);
+          y += 7;
+          doc.setDrawColor(41, 46, 54);
+          doc.setLineWidth(0.35);
+          doc.line(marginX, y, marginX + 74, y);
+          doc.line(pageWidth - marginX - 74, y, pageWidth - marginX, y);
+
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10.2);
+          doc.setTextColor(24, 28, 35);
+          doc.text("Firma de la Agencia", marginX, y + 5);
+          doc.text("Firma de la Creadora", pageWidth - marginX - 74, y + 5);
+
+          const totalPages = doc.getNumberOfPages();
+          for (let i = 1; i <= totalPages; i += 1) {
+            doc.setPage(i);
+            drawFooter(doc, pageWidth, pageHeight, i, totalPages);
+          }
+
+          doc.save("Acuerdo_Representacion_Velour.pdf");
+          statusText.textContent = "PDF descargado correctamente.";
+        } catch (error) {
+          console.error(error);
+          statusText.textContent = "Error al generar el PDF. Verifica el logo y vuelve a intentarlo.";
+        } finally {
+          downloadBtn.disabled = false;
+        }
+      }
+
+      creatorNameInput.addEventListener("input", updatePreview);
+      logoFileInput.addEventListener("change", (event) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+          uploadedLogoDataUrl = null;
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          uploadedLogoDataUrl = String(reader.result || "");
+          logoElement.src = uploadedLogoDataUrl;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      logoElement.onerror = () => {
+        logoCandidateIndex += 1;
+        if (logoCandidateIndex < defaultLogoCandidates.length) {
+          logoElement.src = defaultLogoCandidates[logoCandidateIndex];
+          return;
+        }
+
+        logoElement.style.display = "none";
+      };
+
+      downloadBtn.addEventListener("click", generatePdf);
+      updatePreview();
+    </script>
+  </body>
+</html>
