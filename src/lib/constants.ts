@@ -7,6 +7,7 @@ export function getNavItems(locale: Locale) {
   return [
     { label: dict.nav.home, href: localizeHref(locale, '/') },
     { label: dict.nav.services, href: localizeHref(locale, '/services') },
+    { label: dict.nav.blog, href: localizeHref(locale, '/blog') },
     { label: dict.nav.studio, href: localizeHref(locale, '/about') },
     { label: dict.nav.contact, href: localizeHref(locale, '/contact') },
   ] as const;

@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, type FormEvent } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -60,10 +62,73 @@ const contentTimeByLocale = {
 
 export function ContactForm({ locale = 'es' }: { locale?: Locale }) {
   const dict = getDictionary(locale);
+  const contactFormEndpoint = import.meta.env.PUBLIC_CONTACT_FORM_ENDPOINT?.trim();
 
   const services = servicesByLocale[locale];
   const accountStages = accountStagesByLocale[locale];
   const contentTimeOptions = contentTimeByLocale[locale];
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const selectedServices = formData.getAll('services').map(String);
+
+    if (selectedServices.length === 0) {
+      setStatus('error');
+      setMessage(dict.contact.serviceRequired);
+      return;
+    }
+
+    if (!contactFormEndpoint) {
+      setStatus('error');
+      setMessage(dict.contact.formEndpointMissing);
+      return;
+    }
+
+    const payload = {
+      name: String(formData.get('name') ?? ''),
+      email: String(formData.get('email') ?? ''),
+      telegram: String(formData.get('telegram') ?? ''),
+      social: String(formData.get('social') ?? ''),
+      services: selectedServices,
+      accountStage: String(formData.get('account_stage') ?? ''),
+      contentTime: String(formData.get('content_time') ?? ''),
+      details: String(formData.get('details') ?? ''),
+      locale,
+      submittedAt: new Date().toISOString(),
+      source: typeof window !== 'undefined' ? window.location.href : '',
+    };
+
+    try {
+      setStatus('submitting');
+      setMessage(dict.contact.submitting);
+
+      const response = await fetch(contactFormEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+
+      setStatus('success');
+      setMessage(dict.contact.submitSuccess);
+      form.reset();
+    } catch (error) {
+      console.error(error);
+      setStatus('error');
+      setMessage(dict.contact.submitError);
+    }
+  };
 
   return (
     <section className="hero-padding container grid gap-12 md:grid-cols-2">
@@ -85,7 +150,7 @@ export function ContactForm({ locale = 'es' }: { locale?: Locale }) {
           </Button>
         </div>
 
-        <form className="space-y-10">
+        <form className="space-y-10" onSubmit={handleSubmit} noValidate>
           <div className="flex flex-col gap-4">
           <Label className="text-base">{dict.contact.needsLabel}</Label>
           <div className="flex flex-wrap gap-3">
@@ -149,19 +214,59 @@ export function ContactForm({ locale = 'es' }: { locale?: Locale }) {
           </div>
 
           <div className="space-y-4">
-            <Input type="text" placeholder={dict.contact.placeholders.name} required />
+            <Input
+              type="text"
+              name="name"
+              placeholder={dict.contact.placeholders.name}
+              required
+            />
 
-            <Input type="email" placeholder={dict.contact.placeholders.email} required />
+            <Input
+              type="email"
+              name="email"
+              placeholder={dict.contact.placeholders.email}
+              required
+            />
 
-            <Input type="text" placeholder={dict.contact.placeholders.telegram} required />
+            <Input
+              type="text"
+              name="telegram"
+              placeholder={dict.contact.placeholders.telegram}
+              required
+            />
 
-            <Input type="url" placeholder={dict.contact.placeholders.social} required />
+            <Input
+              type="url"
+              name="social"
+              placeholder={dict.contact.placeholders.social}
+              required
+            />
 
-            <Textarea placeholder={dict.contact.placeholders.details} className="resize-none" />
+            <Textarea
+              name="details"
+              placeholder={dict.contact.placeholders.details}
+              className="resize-none"
+            />
 
-            <Button type="submit" size="lg" className="mt-6">
+            <Button
+              type="submit"
+              size="lg"
+              className="mt-6"
+              disabled={status === 'submitting'}
+            >
               {dict.contact.submit}
             </Button>
+            <p
+              className={`text-sm ${
+                status === 'success'
+                  ? 'text-green-600'
+                  : status === 'error'
+                    ? 'text-destructive'
+                    : 'text-muted-foreground'
+              }`}
+            >
+              {message}
+            </p>
           </div>
         </form>
       </div>

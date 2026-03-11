@@ -5,6 +5,7 @@ export const UI_DICTIONARY = {
     nav: {
       home: 'Inicio',
       services: 'Servicios',
+      blog: 'Blog',
       work: 'Proyectos',
       studio: 'Nosotros',
       blocks: 'Bloques',
@@ -77,7 +78,10 @@ export const UI_DICTIONARY = {
     servicesPage: {
       heading: 'Servicios',
       description:
-        'Operamos cuentas de principio a fin para maximizar conversion, retencion y facturacion mensual.',
+        'Gestionamos tu OnlyFans de punta a punta con chatters 24/7, ventas por DM, retencion y foco en monetizacion estable.',
+      testimonialsTitle: 'Resultados reales de creadoras',
+      ctaTitle: 'Si quieres subir ingresos en serio, hablemos.',
+      ctaButton: 'Quiero una auditoria de mi cuenta',
     },
     projectsPage: {
       heading: 'Proyectos',
@@ -113,6 +117,13 @@ export const UI_DICTIONARY = {
       needsLabel: 'Que necesitas de la agencia?',
       stageLabel: 'Cual es tu facturacion actual en OnlyFans?',
       timeLabel: 'Cuanto tiempo tienes para crear contenido al dia?',
+      serviceRequired: 'Selecciona al menos un servicio para continuar.',
+      formEndpointMissing:
+        'Falta configurar el endpoint del formulario (PUBLIC_CONTACT_FORM_ENDPOINT).',
+      submitting: 'Enviando solicitud...',
+      submitSuccess: 'Solicitud enviada. Te contactaremos pronto.',
+      submitError:
+        'No pudimos enviar la solicitud. Intenta de nuevo o escríbenos por Telegram.',
       placeholders: {
         name: 'Tu nombre',
         email: 'Tu e-mail',
@@ -127,6 +138,7 @@ export const UI_DICTIONARY = {
     nav: {
       home: 'Home',
       services: 'Services',
+      blog: 'Blog',
       work: 'Projects',
       studio: 'Studio',
       blocks: 'Blocks',
@@ -199,7 +211,10 @@ export const UI_DICTIONARY = {
     servicesPage: {
       heading: 'Services',
       description:
-        'We run creator accounts end-to-end to maximize conversion, retention and monthly revenue.',
+        'We manage your OnlyFans end-to-end with 24/7 chatters, DM sales, retention, and stable monetization.',
+      testimonialsTitle: 'Real creator results',
+      ctaTitle: 'If you want to scale seriously, let us talk.',
+      ctaButton: 'I want an account audit',
     },
     projectsPage: {
       heading: 'Projects',
@@ -235,6 +250,13 @@ export const UI_DICTIONARY = {
       needsLabel: 'What do you need from the agency?',
       stageLabel: 'What is your current monthly revenue on OnlyFans?',
       timeLabel: 'How much time do you have to create content in a day?',
+      serviceRequired: 'Select at least one service to continue.',
+      formEndpointMissing:
+        'Missing contact form endpoint configuration (PUBLIC_CONTACT_FORM_ENDPOINT).',
+      submitting: 'Sending your request...',
+      submitSuccess: 'Request sent. We will contact you shortly.',
+      submitError:
+        'We could not send your request. Try again or message us on Telegram.',
       placeholders: {
         name: 'Your name',
         email: 'Your email',

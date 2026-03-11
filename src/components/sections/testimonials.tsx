@@ -104,13 +104,21 @@ const testimonials = {
   ],
 } as const;
 
-export const Testimonials = ({ locale = 'es' }: { locale?: Locale }) => {
+export const Testimonials = ({
+  locale = 'es',
+  title,
+}: {
+  locale?: Locale;
+  title?: string;
+}) => {
   const dict = getDictionary(locale);
   const items = testimonials[locale];
 
   return (
     <section className={cn('section-padding space-y-16 md:space-y-18')}>
-      <h2 className="container text-4xl">{dict.serviceDetail.testimonials}</h2>
+      <h2 className="container text-4xl">
+        {title ?? dict.serviceDetail.testimonials}
+      </h2>
 
       <Marquee pauseOnHover className="[--gap:0.75rem] md:[--gap:1.5rem]">
         {items.map((testimonial, index) => (

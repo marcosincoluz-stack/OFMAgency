@@ -1,10 +1,7 @@
 ---
-import DefaultLayout from '@/layouts/DefaultLayout.astro';
-import { Services } from '@/components/sections/services-section';
-import { OurProcess } from '@/components/sections/our-process';
-import { Testimonials } from '@/components/sections/testimonials';
 import { Cta } from '@/components/sections/cta';
-import { getAllServices } from '@/lib/services';
+import { OurProcess } from '@/components/sections/our-process';
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
 import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/lib/i18n';
 import { getDictionary } from '@/lib/i18n-dictionary';
 
@@ -19,7 +16,6 @@ if (!isLocale(localeParam)) {
 
 const locale: Locale = localeParam;
 const dict = getDictionary(locale);
-const services = await getAllServices(locale);
 ---
 
 <DefaultLayout
@@ -27,8 +23,6 @@ const services = await getAllServices(locale);
   title={dict.pages.services.title}
   description={dict.pages.services.description}
 >
-  <Services services={services} locale={locale} client:idle />
   <OurProcess locale={locale} />
-  <Testimonials locale={locale} />
   <Cta locale={locale} />
 </DefaultLayout>

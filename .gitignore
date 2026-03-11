@@ -2,3 +2,5 @@
 *.zip
 node_modules/
 __MACOSX/
+.env
+.env.local

@@ -28,13 +28,20 @@ export function Hero({ projects, locale = 'es', heading, subheading }: HeroProps
     'reddit-caza-whales-tier1',
   ] as const;
 
+  const heroImageOverrides: Record<number, string> = {
+    0: '/images/homepage/hero/new1.webp',
+    1: '/images/homepage/hero/new2.webp',
+    2: '/images/homepage/hero/new3.webp',
+  };
+
   const heroProjects = projects.map((project, index) => {
-    if (index !== 0 || project.images.length === 0) return project;
+    const overrideImage = heroImageOverrides[index];
+    if (!overrideImage || project.images.length === 0) return project;
 
     return {
       ...project,
       images: [
-        { ...project.images[0], src: '/images/homepage/hero/new1.webp' },
+        { ...project.images[0], src: overrideImage },
         ...project.images.slice(1),
       ],
     };
