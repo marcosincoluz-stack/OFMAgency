@@ -55,10 +55,11 @@ export function CaseStudyCarousel({
   initialSlide?: number;
   locale?: Locale;
 }) {
+  const totalSlides = project.images.length;
+  const hasFewSlides = totalSlides <= 2;
   const safeInitialSlide =
-    project.images.length > 0
-      ? ((initialSlide % project.images.length) + project.images.length) %
-        project.images.length
+    totalSlides > 0
+      ? ((initialSlide % totalSlides) + totalSlides) % totalSlides
       : 0;
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(safeInitialSlide);
@@ -104,7 +105,7 @@ export function CaseStudyCarousel({
       setApi={setApi}
       opts={{
         align: 'center',
-        loop: true,
+        loop: totalSlides > 2,
       }}
       className="section-padding w-full select-none"
     >
@@ -112,11 +113,10 @@ export function CaseStudyCarousel({
         className={cn('relative ml-0! cursor-grab', isMoving ? 'z-10' : '')}
       >
         {project.images.map((image, index) => {
-          const nextIndex = (current + 1) % project.images.length;
-          const prevIndex =
-            (current - 1 + project.images.length) % project.images.length;
+          const nextIndex = (current + 1) % totalSlides;
+          const prevIndex = (current - 1 + totalSlides) % totalSlides;
           const isCurrent = index === current;
-          const isReversed = index === nextIndex;
+          const isReversed = !hasFewSlides && index === nextIndex;
           const slideTitle = image.title || project.title;
           const slideDescription = image.description || project.description;
           const isRoundedImage = /new[-.]one\.webp$/i.test(image.src);
