@@ -79,6 +79,7 @@ export function Hero({ projects, locale = 'es', heading, subheading }: HeroProps
               key={project.id}
               project={project}
               showName={false}
+              priority={index === 0}
               locale={locale}
               href={`/blog/${heroBlogSlugs[index] ?? heroBlogSlugs[0]}`}
               className={cn('h-[290px] w-[438px]', heroImageMoodClass)}
@@ -101,6 +102,7 @@ export function Hero({ projects, locale = 'es', heading, subheading }: HeroProps
                 <ProjectCard
                   project={project}
                   showName={false}
+                  priority={index === 0}
                   locale={locale}
                   href={`/blog/${heroBlogSlugs[index] ?? heroBlogSlugs[0]}`}
                   className={cn(

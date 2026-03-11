@@ -125,7 +125,7 @@ const positions = [
       {positions.map((position) => (
         <Card className="group hover:bg-muted/50 flex flex-col gap-4 transition-colors md:flex-row md:items-center md:justify-between">
           <CardHeader className="space-y-1">
-            <h3 class="text-2xl font-medium">{position.title}</h3>
+            <h3 class="text-2xl font-medium">{position.title || 'Open role'}</h3>
             <div class="text-muted-foreground flex gap-2 md:gap-4">
               <span class="whitespace-nowrap">{position.department}</span>
               <span>•</span>

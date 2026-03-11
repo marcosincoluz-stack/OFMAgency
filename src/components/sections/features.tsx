@@ -197,7 +197,7 @@ export const SkeletonTwo = () => {
                         className="mt-4 -mr-4 shrink-0 overflow-hidden rounded-xl border border-neutral-100 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-800">
                         <img
                             src={image}
-                            alt="bali images"
+                            alt=""
                             width="500"
                             height="500"
                             className="h-20 w-20 shrink-0 rounded-lg object-cover md:h-40 md:w-40" />
@@ -217,7 +217,7 @@ export const SkeletonTwo = () => {
                         className="mt-4 -mr-4 shrink-0 overflow-hidden rounded-xl border border-neutral-100 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-800">
                         <img
                             src={image}
-                            alt="bali images"
+                            alt=""
                             width="500"
                             height="500"
                             className="h-20 w-20 shrink-0 rounded-lg object-cover md:h-40 md:w-40" />

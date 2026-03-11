@@ -97,11 +97,11 @@ export const Navbar = ({
       <header
         className={cn(
           'bigger-container inset-x-0 z-50 flex items-center justify-between py-5 transition-transform duration-700 ease-in-out md:py-6',
-          isHome && 'inset-x-5 pt-10.5 md:inset-x-6 md:py-12.5',
+          isHome && 'inset-x-5 pt-6 md:inset-x-6 md:py-8',
           isHome && 'text-background',
           !isHome && isMenuOpen && 'text-background',
           'fixed',
-          'mt-14',
+          'mt-2',
           isNavbarHidden && !isMenuOpen && '-translate-y-[calc(100%+3.5rem)]',
         )}
       >

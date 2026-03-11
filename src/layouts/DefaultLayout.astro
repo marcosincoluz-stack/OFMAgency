@@ -22,11 +22,11 @@ const pathname = Astro.url.pathname;
   <body
     class={`h-screen antialiased flex flex-col [--header-height:calc(var(--spacing)*14)] lg:[--header-height:calc(var(--spacing)*23)]`}
   >
-    <NavigationProvider client:load currentPath={pathname} />
-    <Navbar pathname={pathname} locale={locale} client:load />
+    <NavigationProvider client:idle currentPath={pathname} />
+    <Navbar pathname={pathname} locale={locale} client:idle />
     <main class="flex-1">
       <slot />
     </main>
-    <Footer locale={locale} client:idle />
+    <Footer locale={locale} client:visible />
   </body>
 </html>

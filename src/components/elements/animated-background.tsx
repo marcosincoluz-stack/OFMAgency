@@ -1,6 +1,6 @@
 'use client';
 
-import { Component, type ReactNode, useEffect, useState } from 'react';
+import { Component, type ReactNode, useEffect, useRef, useState } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -59,6 +59,7 @@ export function AnimatedBackground({
 }) {
   const [UnicornScene, setUnicornScene] = useState<UnicornSceneComponent | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
+  const sceneHostRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -80,11 +81,42 @@ export function AnimatedBackground({
     };
   }, []);
 
+  useEffect(() => {
+    if (!UnicornScene || loadFailed || !sceneHostRef.current) return;
+
+    const host = sceneHostRef.current;
+    const hasInlineSceneError = () => {
+      const text = host.textContent ?? '';
+      return /error loading scene|error fetching data for project id/i.test(text);
+    };
+
+    if (hasInlineSceneError()) {
+      setLoadFailed(true);
+      return;
+    }
+
+    const observer = new MutationObserver(() => {
+      if (hasInlineSceneError()) {
+        setLoadFailed(true);
+      }
+    });
+
+    observer.observe(host, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+
+    return () => observer.disconnect();
+  }, [UnicornScene, loadFailed]);
+
   return (
     <div aria-hidden="true" data-project-id={projectId} className={cn('pointer-events-none', className)}>
       {UnicornScene && !loadFailed ? (
         <SceneErrorBoundary fallback={<BackgroundFallback />}>
-          <UnicornScene projectId={projectId} width="100%" height="100%" />
+          <div ref={sceneHostRef} className="size-full">
+            <UnicornScene projectId={projectId} width="100%" height="100%" />
+          </div>
         </SceneErrorBoundary>
       ) : (
         <BackgroundFallback />

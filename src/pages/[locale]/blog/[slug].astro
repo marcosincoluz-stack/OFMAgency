@@ -187,7 +187,9 @@ const pageDescription = post.data.description;
             <p class="text-xs uppercase tracking-[0.16em] text-muted-foreground">
               {locale === 'es' ? 'Post anterior' : 'Previous post'}
             </p>
-            <h3 class="mt-2 text-lg leading-tight tracking-tight">{olderPost.data.title}</h3>
+            <h3 class="mt-2 text-lg leading-tight tracking-tight">
+              {olderPost.data.title || 'Previous post'}
+            </h3>
           </a>
         )}
         {newerPost && (
@@ -198,7 +200,9 @@ const pageDescription = post.data.description;
             <p class="text-xs uppercase tracking-[0.16em] text-muted-foreground">
               {locale === 'es' ? 'Post siguiente' : 'Next post'}
             </p>
-            <h3 class="mt-2 text-lg leading-tight tracking-tight">{newerPost.data.title}</h3>
+            <h3 class="mt-2 text-lg leading-tight tracking-tight">
+              {newerPost.data.title || 'Next post'}
+            </h3>
           </a>
         )}
           </section>
@@ -216,12 +220,12 @@ const pageDescription = post.data.description;
                   >
                     <img
                       src={entry.data.coverImage ?? '/images/homepage/hero/new1.webp'}
-                      alt={entry.data.title}
+                      alt={entry.data.title || (locale === 'es' ? 'Post relacionado' : 'Related post')}
                       class="h-36 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div class="space-y-2 p-4">
                       <h3 class="line-clamp-3 text-base leading-snug tracking-tight">
-                        {entry.data.title}
+                        {entry.data.title || (locale === 'es' ? 'Post relacionado' : 'Related post')}
                       </h3>
                       <p class="line-clamp-2 text-sm text-muted-foreground">
                         {entry.data.description}

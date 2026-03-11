@@ -1,7 +1,5 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +10,6 @@ import {
 } from '@/lib/constants';
 import type { Locale } from '@/lib/i18n';
 import { getDictionary } from '@/lib/i18n-dictionary';
-import { cn } from '@/lib/utils';
 
 const servicesByLocale = {
   es: [
@@ -48,30 +45,25 @@ const accountStagesByLocale = {
   ],
 } as const;
 
+const contentTimeByLocale = {
+  es: [
+    'Menos de 1 hora',
+    '1 a 3 horas',
+    'Mas de 3 horas',
+  ],
+  en: [
+    'Less than 1 hour',
+    '1 to 3 hours',
+    'More than 3 hours',
+  ],
+} as const;
+
 export function ContactForm({ locale = 'es' }: { locale?: Locale }) {
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [selectedStage, setSelectedStage] = useState<string>('');
   const dict = getDictionary(locale);
 
-  const services = useMemo(() => servicesByLocale[locale], [locale]);
-  const accountStages = useMemo(() => accountStagesByLocale[locale], [locale]);
-
-  const toggleService = (service: string) => {
-    setSelectedServices((prev) =>
-      prev.includes(service)
-        ? prev.filter((s) => s !== service)
-        : [...prev, service],
-    );
-  };
-
-  const selectStage = (stage: string) => {
-    setSelectedStage(stage);
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log('Form submitted', { selectedServices, selectedStage });
-  };
+  const services = servicesByLocale[locale];
+  const accountStages = accountStagesByLocale[locale];
+  const contentTimeOptions = contentTimeByLocale[locale];
 
   return (
     <section className="hero-padding container grid gap-12 md:grid-cols-2">
@@ -93,68 +85,84 @@ export function ContactForm({ locale = 'es' }: { locale?: Locale }) {
           </Button>
         </div>
 
-        <div className="flex flex-col gap-4">
+        <form className="space-y-10">
+          <div className="flex flex-col gap-4">
           <Label className="text-base">{dict.contact.needsLabel}</Label>
           <div className="flex flex-wrap gap-3">
             {services.map((service) => (
-              <Button
+              <label
                 key={service}
-                variant="outline"
-                type="button"
-                onClick={() => toggleService(service)}
-                className={cn(
-                  'rounded-full transition-colors',
-                  selectedServices.includes(service)
-                    ? 'border-foreground'
-                    : 'border-border hover:border-foreground/50',
-                )}
+                className="cursor-pointer"
               >
-                {service}
-              </Button>
+                <input
+                  type="checkbox"
+                  name="services"
+                  value={service}
+                  className="peer sr-only"
+                />
+                <span className="inline-flex items-center justify-center rounded-full border border-border bg-transparent px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-foreground/50 peer-checked:border-foreground peer-checked:bg-foreground peer-checked:text-background">
+                  {service}
+                </span>
+              </label>
             ))}
           </div>
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <Label className="text-base">{dict.contact.stageLabel}</Label>
-          <div className="flex flex-wrap gap-3">
-            {accountStages.map((stage) => (
-              <Button
-                key={stage}
-                variant="outline"
-                type="button"
-                onClick={() => selectStage(stage)}
-                className={cn(
-                  'rounded-full transition-colors',
-                  selectedStage === stage
-                    ? 'border-foreground'
-                    : 'border-border hover:border-foreground/50',
-                )}
-              >
-                {stage}
-              </Button>
-            ))}
           </div>
-        </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <Input type="text" placeholder={dict.contact.placeholders.name} required />
+          <div className="flex flex-col gap-4">
+            <Label className="text-base">{dict.contact.stageLabel}</Label>
+            <div className="flex flex-wrap gap-3">
+              {accountStages.map((stage, idx) => (
+                <label key={stage} className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="account_stage"
+                    value={stage}
+                    className="peer sr-only"
+                    required={idx === 0}
+                  />
+                  <span className="inline-flex items-center justify-center rounded-full border border-border bg-transparent px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-foreground/50 peer-checked:border-foreground peer-checked:bg-foreground peer-checked:text-background">
+                    {stage}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
 
-          <Input type="email" placeholder={dict.contact.placeholders.email} required />
+          <div className="flex flex-col gap-4">
+            <Label className="text-base">{dict.contact.timeLabel}</Label>
+            <div className="flex flex-wrap gap-3">
+              {contentTimeOptions.map((time, idx) => (
+                <label key={time} className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="content_time"
+                    value={time}
+                    className="peer sr-only"
+                    required={idx === 0}
+                  />
+                  <span className="inline-flex items-center justify-center rounded-full border border-border bg-transparent px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-foreground/50 peer-checked:border-foreground peer-checked:bg-foreground peer-checked:text-background">
+                    {time}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
 
-          <Input type="text" placeholder={dict.contact.placeholders.telegram} required />
+          <div className="space-y-4">
+            <Input type="text" placeholder={dict.contact.placeholders.name} required />
 
-          <Input type="text" placeholder={dict.contact.placeholders.brand} />
+            <Input type="email" placeholder={dict.contact.placeholders.email} required />
 
-          <Textarea
-            placeholder={dict.contact.placeholders.details}
-            className="resize-none"
-            required
-          />
+            <Input type="text" placeholder={dict.contact.placeholders.telegram} required />
 
-          <Button type="submit" size="lg" className="mt-6">
-            {dict.contact.submit}
-          </Button>
+            <Input type="url" placeholder={dict.contact.placeholders.social} required />
+
+            <Textarea placeholder={dict.contact.placeholders.details} className="resize-none" />
+
+            <Button type="submit" size="lg" className="mt-6">
+              {dict.contact.submit}
+            </Button>
+          </div>
         </form>
       </div>
     </section>

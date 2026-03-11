@@ -144,7 +144,7 @@ const awards = [
               />
             </div>
             <div class="flex flex-col gap-2">
-              <h3 class="text-lg">{member.name}</h3>
+              <h3 class="text-lg">{member.name || 'Team member'}</h3>
               <p class="text-muted-foreground">{member.role}</p>
             </div>
           </div>
@@ -165,7 +165,7 @@ const awards = [
               />
             </div>
             <div class="flex flex-col gap-2">
-              <h3 class="text-lg">{member.name}</h3>
+              <h3 class="text-lg">{member.name || 'Team member'}</h3>
               <p class="text-muted-foreground">{member.role}</p>
             </div>
           </div>
@@ -193,7 +193,7 @@ const awards = [
             </div>
           </Card>
           <div class="flex flex-col gap-2">
-            <h3 class="text-lg">{award.title}</h3>
+            <h3 class="text-lg">{award.title || 'Award'}</h3>
             <p class="text-muted-foreground">{award.organization}</p>
           </div>
         </div>

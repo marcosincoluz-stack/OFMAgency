@@ -5,8 +5,9 @@ import { AboutIntro } from '@/components/sections/about-intro';
 import { CaseStudies } from '@/components/sections/case-studies';
 import { Logos } from '@/components/sections/logos';
 import { getAllProjects } from '@/lib/projects';
-import { Services } from '@/components/sections/services';
 import { BentoDemo } from '@/components/sections/bento-demo';
+import { Testimonials } from '@/components/sections/testimonials';
+import { Cta } from '@/components/sections/cta';
 import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/lib/i18n';
 import { getDictionary } from '@/lib/i18n-dictionary';
 
@@ -24,16 +25,35 @@ const market = Astro.locals.market;
 const dict = getDictionary(locale);
 
 const allProjects = await getAllProjects(locale);
+const compactProjects = allProjects.map((project) => ({
+  id: project.id,
+  name: project.name,
+  slug: project.slug,
+  logo: project.logo,
+  logoImage: project.logoImage,
+  forceWhiteLogo: project.forceWhiteLogo,
+  logoClassName: project.logoClassName,
+  imageClassName: project.imageClassName,
+  hideLogoOverlay: project.hideLogoOverlay,
+  category: project.category,
+  url: project.url,
+  title: project.title,
+  description: project.description,
+  images: project.images,
+}));
 
-const heroProjects = allProjects.slice(0, 4);
-const caseStudyProjects = [allProjects[0], allProjects[1], allProjects[4]].filter(Boolean);
+const heroProjects = compactProjects.slice(0, 4);
+const caseStudyProjects = [
+  compactProjects.find((project) => project.slug === 'nextdock'),
+  compactProjects.find((project) => project.slug === 'nextdock'),
+].filter(Boolean);
 const logoProjects = [
-  allProjects[0],
-  allProjects[1],
-  allProjects[2],
-  allProjects[3],
-  allProjects[8],
-  allProjects[11],
+  compactProjects[0],
+  compactProjects[1],
+  compactProjects[2],
+  compactProjects[3],
+  compactProjects[8],
+  compactProjects[11],
 ].filter(Boolean);
 ---
 
@@ -43,9 +63,22 @@ const logoProjects = [
   description={dict.pages.home.description}
 >
   <Hero projects={heroProjects} locale={locale} client:idle />
-  <AboutIntro locale={locale} />
-  <BentoDemo locale={locale} market={market} client:load />
-  <CaseStudies projects={caseStudyProjects} locale={locale} client:idle />
-  <Services locale={locale} />
-  <Logos projects={logoProjects} client:idle />
+  <div class="[content-visibility:auto] [contain-intrinsic-size:800px]">
+    <AboutIntro locale={locale} />
+  </div>
+  <div class="[content-visibility:auto] [contain-intrinsic-size:900px]">
+    <BentoDemo locale={locale} market={market} client:visible />
+  </div>
+  <div class="[content-visibility:auto] [contain-intrinsic-size:1100px]">
+    <CaseStudies projects={caseStudyProjects} locale={locale} client:visible />
+  </div>
+  <div class="[content-visibility:auto] [contain-intrinsic-size:860px]">
+    <Testimonials locale={locale} />
+  </div>
+  <div class="[content-visibility:auto] [contain-intrinsic-size:420px]">
+    <Cta locale={locale} />
+  </div>
+  <div class="[content-visibility:auto] [contain-intrinsic-size:700px]">
+    <Logos projects={logoProjects} client:visible />
+  </div>
 </DefaultLayout>

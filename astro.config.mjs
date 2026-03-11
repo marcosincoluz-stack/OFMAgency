@@ -9,6 +9,9 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   site: 'https://hive-astro-template.vercel.app',
   integrations: [mdx(), sitemap(), react()],
+  devToolbar: {
+    enabled: true,
+  },
 
   vite: {
     plugins: [tailwindcss()],

@@ -33,6 +33,7 @@ interface ProjectCardProps {
   className?: string;
   locale?: Locale;
   href?: string;
+  priority?: boolean;
 }
 
 export function ProjectCard({
@@ -41,6 +42,7 @@ export function ProjectCard({
   className,
   locale = 'es',
   href,
+  priority = false,
 }: ProjectCardProps) {
   const [logoImageError, setLogoImageError] = useState(false);
   const {
@@ -73,11 +75,14 @@ export function ProjectCard({
           src={primaryImage.src}
           alt={primaryImage.alt}
           className={cn(
-            'size-full object-cover transition-all duration-500 ease-out group-hover:scale-110',
+            'size-full object-cover transition-all duration-500 ease-out will-change-transform group-hover:scale-110',
             imageClassName,
             !hideLogoOverlay && 'group-hover:blur-[5px]',
           )}
           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          loading={priority ? 'eager' : 'lazy'}
+          fetchPriority={priority ? 'high' : 'auto'}
+          decoding="async"
         />
         <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/3" />
         {!hideLogoOverlay && (
@@ -85,7 +90,7 @@ export function ProjectCard({
             {hasCustomLogoImage ? (
               forceWhiteLogo ? (
                 <div
-                  aria-label={`${name} logo`}
+                  aria-label={name || 'Project'}
                   className={cn(
                     'h-24 w-56 max-w-[80%] bg-white',
                     logoClassName,
@@ -104,8 +109,10 @@ export function ProjectCard({
               ) : (
                 <img
                   src={logoImage}
-                  alt={`${name} logo`}
+                  alt={name || 'Project'}
                   className={cn('h-24 w-auto object-contain', logoClassName)}
+                  loading="lazy"
+                  decoding="async"
                   onError={() => setLogoImageError(true)}
                 />
               )
@@ -119,7 +126,7 @@ export function ProjectCard({
           </div>
         )}
       </div>
-      {showName && <h3 className="text-lg">{name}</h3>}
+      {showName && <h3 className="text-lg">{name || 'Project'}</h3>}
     </a>
   );
 }

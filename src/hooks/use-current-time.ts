@@ -5,6 +5,9 @@ export const useCurrentTime = (locale: string = 'en', unknownLocation = 'Unknown
   const [currentLocation, setCurrentLocation] = useState<string>('');
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
     const updateTime = () => {
       const now = new Date();
       const timeString = now.toLocaleTimeString(locale === 'es' ? 'es-ES' : 'en-US', {
@@ -16,13 +19,19 @@ export const useCurrentTime = (locale: string = 'en', unknownLocation = 'Unknown
     };
 
     updateTime();
-    const timeInterval = setInterval(updateTime, 1000);
+
+    // Align updates to the next minute and then refresh every 60s.
+    const now = new Date();
+    const msUntilNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+    timeoutId = setTimeout(() => {
+      updateTime();
+      intervalId = setInterval(updateTime, 60_000);
+    }, msUntilNextMinute);
 
     const getLocation = () => {
       try {
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const cityName =
-          timeZone.split('/').pop()?.replace(/_/g, ' ') || timeZone;
+        const cityName = timeZone.split('/').pop()?.replace(/_/g, ' ') || timeZone;
         setCurrentLocation(cityName);
       } catch {
         setCurrentLocation(unknownLocation);
@@ -32,7 +41,8 @@ export const useCurrentTime = (locale: string = 'en', unknownLocation = 'Unknown
     getLocation();
 
     return () => {
-      clearInterval(timeInterval);
+      if (timeoutId) clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
     };
   }, [locale, unknownLocation]);
 

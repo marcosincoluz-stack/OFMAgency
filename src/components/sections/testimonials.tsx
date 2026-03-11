@@ -8,74 +8,74 @@ const testimonials = {
   es: [
     {
       quote:
-        'Velour transformo nuestra operacion de DMs y elevamos ingresos en semanas sin perder identidad de marca.',
-      author: 'Robert Evans',
-      role: 'Founder of BankPro',
+        'En 8 semanas pasamos de responder sin sistema a cerrar ventas diarias por DM con procesos claros y medibles.',
+      author: 'Lucia M.',
+      role: 'Creadora | Espana',
       image: '/images/testimonials/robert-evans.webp',
     },
     {
       quote:
-        'Pasamos de respuestas improvisadas a un sistema comercial consistente que convierte todos los dias.',
-      author: 'Anna Peterson',
-      role: 'Founder of Nextdock',
+        'Lo mejor fue recuperar tiempo: el equipo de chatters opera 24/7 y yo solo me enfoco en contenido estrategico.',
+      author: 'Valentina R.',
+      role: 'Creadora | Mexico',
       image: '/images/testimonials/anna-peterson.webp',
     },
     {
       quote:
-        'La estructura de ventas por chat y el seguimiento de retencion marcaron un antes y un despues.',
-      author: 'David Kim',
-      role: 'Director at Scalar',
+        'Con su framework de retencion y PPV dejamos de depender de picos. Ahora tenemos ingresos mucho mas predecibles.',
+      author: 'Mia K.',
+      role: 'Creadora | USA',
       image: '/images/testimonials/david-kim.webp',
     },
     {
       quote:
-        'Operacion impecable, reportes claros y mejoras continuas. Se nota el enfoque en performance real.',
-      author: 'Sofia Martinez',
-      role: 'Marketing Lead at Neobase',
+        'Venia de una agencia que prometia mucho y no ejecutaba. Aqui hay reportes, foco en conversion y mejora semanal real.',
+      author: 'Sofia T.',
+      role: 'Creadora | Argentina',
       image: '/images/testimonials/sofia-martinez.webp',
     },
     {
       quote:
-        'Equipo rapido y preciso. Ahora tenemos crecimiento estable y control sobre la monetizacion.',
-      author: 'James Carter',
-      role: 'CEO at Northwind Finance',
+        'Su garantia de privacidad nos dio tranquilidad total. Escalamos sin comprometer seguridad ni control de la cuenta.',
+      author: 'Noa P.',
+      role: 'Creator Manager | LATAM',
       image: '/images/testimonials/james-carter.webp',
     },
   ],
   en: [
     {
       quote:
-        'Velour transformed our DM operation and we lifted revenue in weeks without losing brand tone.',
-      author: 'Robert Evans',
-      role: 'Founder of BankPro',
+        'In 8 weeks we moved from random replies to daily DM closes with clear and measurable sales systems.',
+      author: 'Lucia M.',
+      role: 'Creator | Spain',
       image: '/images/testimonials/robert-evans.webp',
     },
     {
       quote:
-        'We moved from improvised replies to a consistent sales system that converts every day.',
-      author: 'Anna Peterson',
-      role: 'Founder of Nextdock',
+        'The biggest win was time freedom: their chatter team runs 24/7 while I focus only on strategic content.',
+      author: 'Valentina R.',
+      role: 'Creator | Mexico',
       image: '/images/testimonials/anna-peterson.webp',
     },
     {
       quote:
-        'The chat sales framework and retention workflow made a measurable impact quickly.',
-      author: 'David Kim',
-      role: 'Director at Scalar',
+        'With their retention and PPV framework we stopped relying on spikes. Revenue is now far more predictable.',
+      author: 'Mia K.',
+      role: 'Creator | USA',
       image: '/images/testimonials/david-kim.webp',
     },
     {
       quote:
-        'Flawless execution, clear reporting, and constant iteration focused on performance.',
-      author: 'Sofia Martinez',
-      role: 'Marketing Lead at Neobase',
+        'I came from an agency that overpromised and underdelivered. Here you get reporting, conversion focus and weekly execution.',
+      author: 'Sofia T.',
+      role: 'Creator | Argentina',
       image: '/images/testimonials/sofia-martinez.webp',
     },
     {
       quote:
-        'Fast, precise team. We now have stable growth and better monetization control.',
-      author: 'James Carter',
-      role: 'CEO at Northwind Finance',
+        'Their privacy-first setup gave us total peace of mind. We scaled without compromising account security or control.',
+      author: 'Noa P.',
+      role: 'Creator Manager | LATAM',
       image: '/images/testimonials/james-carter.webp',
     },
   ],
@@ -105,6 +105,8 @@ export const Testimonials = ({ locale = 'es' }: { locale?: Locale }) => {
                 width={48}
                 height={48}
                 className="object-cover grayscale transition-all duration-300 group-hover/card:grayscale-0"
+                loading="lazy"
+                decoding="async"
               />
               <div className="flex flex-col gap-0">
                 <p>{testimonial.author}</p>

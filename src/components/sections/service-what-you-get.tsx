@@ -40,7 +40,7 @@ export const ServiceWhatYouGet = ({
               </div>
             )}
             <div className="flex w-full shrink-0 flex-col items-start gap-2">
-              <h3 className="text-lg">{item.title}</h3>
+              <h3 className="text-lg">{item.title || 'Feature'}</h3>
               <p className="text-muted-foreground">{item.description}</p>
             </div>
           </div>

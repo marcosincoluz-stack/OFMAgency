@@ -74,6 +74,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return context.redirect(`/${resolvedLocale}`, 302);
   }
 
+  // Projects listing page was removed; send old links to localized home.
+  if (!isPrerendered && (pathname === '/projects' || pathname === '/es/projects' || pathname === '/en/projects')) {
+    return context.redirect(`/${resolvedLocale}`, 302);
+  }
+
   // Legacy compatibility: non-prefixed routes always map to /es/*
   if (!isPrerendered && !pathLocale && !isBypassPath(pathname)) {
     return context.redirect(withLocale(pathname, DEFAULT_LOCALE), 302);

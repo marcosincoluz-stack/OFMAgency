@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   Bell,
@@ -17,7 +17,6 @@ import {
 import { cn } from '@/lib/utils';
 import { AnimatedList } from '@/components/magicui/animated-list';
 import { CommentReplyCard } from '@/components/sections/comment-reply-card';
-import { Globe3D } from '@/components/ui/3d-globe';
 import type { Locale, Market } from '@/lib/i18n';
 import { getDictionary } from '@/lib/i18n-dictionary';
 
@@ -57,6 +56,11 @@ type BentoMarketConfig = {
   integrations: FeatureCopy;
   globe: FeatureCopy;
 };
+
+const LazyGlobe3D = lazy(async () => {
+  const module = await import('@/components/ui/3d-globe');
+  return { default: module.Globe3D };
+});
 
 const bentoConfig: Record<Locale, Record<Market, BentoMarketConfig>> = {
   es: {
@@ -299,7 +303,6 @@ export function BentoDemo({ locale = 'es', market = 'global' }: { locale?: Local
         'pointer-events-none absolute inset-0 bg-gradient-to-t from-background/30 via-background/5 to-transparent',
       background: (
         <Globe3DPreview
-          locale={locale}
           title={activeConfig.globe.name}
           description={activeConfig.globe.description}
           className="absolute inset-0 transition-all duration-300 ease-out group-hover:scale-[1.02]"
@@ -355,7 +358,7 @@ function BentoCard({
           {!hideIcon && <Icon className="mb-3 size-5 text-muted-foreground" />}
           <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
             {TitleIcon && <TitleIcon className="size-4.5 text-muted-foreground" />}
-            <span>{name}</span>
+            <span>{name || 'Feature'}</span>
           </h3>
           <p className="mt-2 max-w-lg text-sm text-muted-foreground">{description}</p>
           <a href={href} className="mt-4 inline-flex text-sm font-medium text-primary transition-opacity hover:opacity-80">
@@ -499,15 +502,29 @@ function AnimatedListPreview({ className, locale = 'es' }: { className?: string;
 
 function Globe3DPreview({
   className,
-  locale = 'es',
   title,
   description,
 }: {
   className?: string;
-  locale?: Locale;
   title: string;
   description: string;
 }) {
+  const [shouldRenderGlobe, setShouldRenderGlobe] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(
+      '(min-width: 1024px) and (prefers-reduced-motion: no-preference)',
+    );
+    const update = () => setShouldRenderGlobe(mediaQuery.matches);
+
+    update();
+    mediaQuery.addEventListener?.('change', update);
+
+    return () => {
+      mediaQuery.removeEventListener?.('change', update);
+    };
+  }, []);
+
   return (
     <div
       className={cn(
@@ -521,25 +538,29 @@ function Globe3DPreview({
       <p className="max-w-lg text-balance text-neutral-600 dark:text-neutral-400">
         {description}
       </p>
-      <Globe3D
-        className="absolute -bottom-96 -left-0 h-[700px]"
-        markers={sampleMarkers}
-        config={{
-          atmosphereColor: '#4da6ff',
-          atmosphereIntensity: 20,
-          bumpScale: 5,
-          autoRotateSpeed: 0.3,
-          initialRotation: { x: 0, y: -0.7 },
-        }}
-        onMarkerClick={(marker) => {
-          console.log(locale === 'es' ? 'Click marcador:' : 'Clicked marker:', marker.label);
-        }}
-        onMarkerHover={(marker) => {
-          if (marker) {
-            console.log(locale === 'es' ? 'Hover marcador:' : 'Hovering:', marker.label);
+      {shouldRenderGlobe ? (
+        <Suspense
+          fallback={
+            <div className="absolute inset-0 animate-pulse bg-gradient-to-b from-slate-200/60 to-transparent dark:from-slate-800/50" />
           }
-        }}
-      />
+        >
+          <LazyGlobe3D
+            className="absolute -bottom-96 -left-0 h-[700px]"
+            markers={sampleMarkers}
+            config={{
+              atmosphereColor: '#4da6ff',
+              atmosphereIntensity: 20,
+              bumpScale: 5,
+              autoRotateSpeed: 0.3,
+              initialRotation: { x: 0, y: -0.7 },
+            }}
+          />
+        </Suspense>
+      ) : (
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -bottom-60 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_35%_30%,rgba(77,166,255,0.33),rgba(77,166,255,0.10)_42%,transparent_70%)]" />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,9 +1,11 @@
 ---
 import DefaultLayout from '@/layouts/DefaultLayout.astro';
-import { AboutIntro } from '@/components/sections/about-intro';
-import { Process } from '@/components/sections/process';
-import { Cta } from '@/components/sections/cta';
-import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/lib/i18n';
+import {
+  SUPPORTED_LOCALES,
+  isLocale,
+  localizeHref,
+  type Locale,
+} from '@/lib/i18n';
 import { getDictionary } from '@/lib/i18n-dictionary';
 
 export async function getStaticPaths() {
@@ -18,28 +20,237 @@ if (!isLocale(localeParam)) {
 const locale: Locale = localeParam;
 const dict = getDictionary(locale);
 
-const values =
+const copy =
   locale === 'es'
-    ? [
-        { title: 'Estrategia', description: 'Decisiones basadas en datos y posicionamiento claro.' },
-        { title: 'Ejecucion', description: 'Operacion diaria con estandares de performance altos.' },
-        { title: 'Escalado', description: 'Sistemas pensados para crecer sin perder rentabilidad.' },
-      ]
-    : [
-        { title: 'Strategy', description: 'Data-backed decisions with clear positioning.' },
-        { title: 'Execution', description: 'Daily operations with high performance standards.' },
-        { title: 'Scaling', description: 'Systems built to grow without losing profitability.' },
-      ];
+    ? {
+        heroTitle:
+          'Velour®: representacion exclusiva para creadores que operan como empresa.',
+        heroSubtitle:
+          'Como agencia OFM, nuestro sistema esta disenado para llevarte a 3.000€/mes en 90 dias con operacion real de chatters, DMs y cierres diarios.',
+        heroCta: 'Aplica para representacion',
+        problemTitle: 'La realidad de la industria',
+        problemParagraphs: [
+          'El mercado esta lleno de agencias aficionadas, promesas vacias y operaciones improvisadas. Muchas creadoras entran con ilusion y terminan con mas estres, menos control y cero previsibilidad financiera.',
+          'Cuando intentas hacerlo todo sola, el coste real no solo es economico: son horas infinitas en DMs, fatiga mental, miedo a filtraciones y la sensacion constante de no poder desconectar nunca.',
+        ],
+        standardTitle: 'El estandar Velour®',
+        standardParagraphs: [
+          'En Velour tratamos esta industria como lo que es: un negocio de alto rendimiento que exige procesos, datos y ejecucion disciplinada.',
+          'No operamos con intuiciones ni con experimentos de corto plazo. Construimos sistemas para escalar facturacion, proteger reputacion y sostener crecimiento durante meses, no durante una semana.',
+          'Nuestro marco de trabajo esta orientado a performance de nivel Top 0.1% Creator Performance: decisiones rapidas, control de metricas y enfoque total en rentabilidad por suscriptor.',
+        ],
+        methodTitle: 'El camino a 3.000€ en 90 dias',
+        methodSteps: [
+          {
+            title: 'Paso 1: Trafico y embudos SFW',
+            description:
+              'Activamos un flujo constante de leads cualificados con embudos limpios y sostenibles, para que la cuenta deje de depender de picos aleatorios.',
+          },
+          {
+            title: 'Paso 2: Operacion de chatters 24/7',
+            description:
+              'Gestionamos DMs y conversion diaria con psicologia de ventas, mientras tu recuperas tiempo para crear, viajar y vivir sin la carga operativa.',
+          },
+          {
+            title: 'Paso 3: Seguridad y escalabilidad',
+            description:
+              'Aplicamos la 100% Privacy & Security Guarantee junto con optimizacion de ticket medio y retencion para crecer sin comprometer tu marca.',
+          },
+        ],
+        infrastructureTitle: 'La infraestructura oculta: nuestra ventaja injusta',
+        infrastructureParagraphs: [
+          'Detras del resultado hay sistema: paneles de analitica, trazabilidad de conversion por segmento y protocolos de respuesta para cada fase del embudo.',
+          'Combinamos proteccion activa contra filtraciones, playbooks de comunicacion y un equipo entrenado en psicologia de ventas para elevar el LTV de cada suscriptor.',
+        ],
+        infrastructureBullets: [
+          'Analitica aplicada a conversion y retencion en tiempo real.',
+          'Proteccion de privacidad y gestion de incidentes 24/7.',
+          'Ejecucion estandarizada para escalar sin perder calidad.',
+        ],
+        fitTitle: 'Para quien es y para quien NO es Velour®',
+        fitYesTitle: 'Es para ti si',
+        fitNoTitle: 'NO es para ti si',
+        fitYes: [
+          'Quieres tratar tu cuenta como un negocio serio y escalable.',
+          'Estas dispuesta a mantener consistencia en contenido y ejecucion.',
+          'Buscas estructura, privacidad y crecimiento predecible.',
+        ],
+        fitNo: [
+          'Buscas dinero facil sin proceso ni disciplina.',
+          'No quieres trabajar con objetivos, metricas ni plan operativo.',
+          'Prefieres improvisar en lugar de construir un sistema estable.',
+        ],
+        finalTitle: 'Plazas limitadas por representacion exclusiva',
+        finalText:
+          'Velour no trabaja por volumen. Seleccionamos un numero reducido de perfiles para mantener estandares de ejecucion y privacidad de nivel premium. Si quieres entrar en la siguiente ventana de incorporacion, aplica hoy.',
+        finalCta: 'Reservar auditoria estrategica',
+      }
+    : {
+        heroTitle:
+          'Velour®: exclusive representation for creators who run like a business.',
+        heroSubtitle:
+          'As an OFM agency, our system is built to help you reach €3,000/month in 90 days through real operations: chatters, DMs, and daily closes.',
+        heroCta: 'Apply for representation',
+        problemTitle: 'The industry reality',
+        problemParagraphs: [
+          'This market is full of amateur agencies, empty promises, and improvised execution. Many creators start with momentum and end up with more stress, less control, and unstable revenue.',
+          'When you do everything alone, the real cost is not only financial: endless DM hours, mental overload, leak anxiety, and the feeling that you can never switch off.',
+        ],
+        standardTitle: 'The Velour® standard',
+        standardParagraphs: [
+          'At Velour, we treat this industry as what it is: a high-performance business that requires systems, data, and disciplined execution.',
+          'We do not operate on guesswork or short-term hacks. We build operating systems that scale revenue, protect reputation, and sustain growth over time.',
+          'Our framework is designed for Top 0.1% Creator Performance: fast decisions, metric control, and relentless focus on subscriber-level profitability.',
+        ],
+        methodTitle: 'The 90-day path to €3,000',
+        methodSteps: [
+          {
+            title: 'Step 1: SFW traffic and funnels',
+            description:
+              'We activate consistent qualified lead flow through clean, sustainable funnels, so your revenue no longer depends on random spikes.',
+          },
+          {
+            title: 'Step 2: 24/7 chatter operations',
+            description:
+              'We run DMs and daily conversion with sales psychology, while you recover time to create, travel, and operate without daily burnout.',
+          },
+          {
+            title: 'Step 3: Security and scalability',
+            description:
+              'We apply the 100% Privacy & Security Guarantee and optimize average ticket plus retention to scale without compromising your brand.',
+          },
+        ],
+        infrastructureTitle: 'The hidden infrastructure: our unfair advantage',
+        infrastructureParagraphs: [
+          'Behind every result there is infrastructure: analytics dashboards, conversion tracking by segment, and communication protocols for each funnel stage.',
+          'We combine anti-leak protection, response playbooks, and a team trained in sales psychology to maximize subscriber LTV.',
+        ],
+        infrastructureBullets: [
+          'Real-time analytics for conversion and retention.',
+          '24/7 privacy protection and incident handling.',
+          'Standardized execution that scales without quality loss.',
+        ],
+        fitTitle: 'Who Velour® is for and who it is NOT for',
+        fitYesTitle: 'This is for you if',
+        fitNoTitle: 'This is NOT for you if',
+        fitYes: [
+          'You are ready to treat your account as a serious scalable business.',
+          'You can stay consistent with content and execution.',
+          'You want structure, privacy, and predictable growth.',
+        ],
+        fitNo: [
+          'You are looking for easy money without process or discipline.',
+          'You do not want goals, metrics, or operational accountability.',
+          'You prefer improvisation instead of building stable systems.',
+        ],
+        finalTitle: 'Limited slots due to exclusive representation',
+        finalText:
+          'Velour does not work at volume. We onboard a limited number of profiles to preserve premium execution and privacy standards. If you want to enter the next onboarding window, apply now.',
+        finalCta: 'Book strategic audit',
+      };
 ---
 
 <DefaultLayout locale={locale} title={dict.pages.about.title} description={dict.pages.about.description}>
-  <section class="hero-padding container text-center">
-    <h1 class="text-5xl md:text-6xl lg:text-7xl">
-      {locale === 'es' ? 'Sobre Velour' : 'About Velour'}
+  <section class="hero-padding container space-y-6 text-center">
+    <h1 class="text-4xl leading-tight md:text-6xl lg:text-7xl">
+      {copy.heroTitle}
     </h1>
+    <h2 class="text-muted-foreground mx-auto max-w-4xl text-lg leading-relaxed md:text-2xl">
+      {copy.heroSubtitle}
+    </h2>
+    <div class="pt-2">
+      <a
+        href={localizeHref(locale, '/contact')}
+        class="inline-flex items-center justify-center rounded-full bg-[#2f7cc7] px-7 py-2.5 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(47,124,199,0.28)] transition hover:bg-[#2a71b6]"
+      >
+        {copy.heroCta}
+      </a>
+    </div>
   </section>
 
-  <AboutIntro locale={locale} />
-  <Process title={locale === 'es' ? 'Como trabajamos' : 'How we work'} steps={values} client:idle />
-  <Cta locale={locale} />
+  <section class="section-padding container grid gap-8 md:grid-cols-12">
+    <h2 class="text-3xl md:col-span-4 md:text-4xl">{copy.problemTitle}</h2>
+    <div class="text-muted-foreground space-y-6 text-lg leading-relaxed md:col-span-8">
+      {copy.problemParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+    </div>
+  </section>
+
+  <section class="section-padding container grid gap-8 md:grid-cols-12">
+    <h2 class="text-3xl md:col-span-4 md:text-4xl">{copy.standardTitle}</h2>
+    <div class="text-muted-foreground space-y-6 text-lg leading-relaxed md:col-span-8">
+      {copy.standardParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+    </div>
+  </section>
+
+  <section class="section-padding container space-y-8">
+    <h2 class="text-3xl md:text-4xl">{copy.fitTitle}</h2>
+    <div class="grid gap-6 md:grid-cols-2">
+      <article class="rounded-2xl border border-border/70 bg-card/45 p-6">
+        <h3 class="text-xl">{copy.fitYesTitle}</h3>
+        <ul class="mt-4 space-y-3">
+          {copy.fitYes.map((item) => (
+            <li class="flex items-start gap-3">
+              <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-emerald-400"></span>
+              <span class="text-muted-foreground">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </article>
+      <article class="rounded-2xl border border-border/70 bg-card/45 p-6">
+        <h3 class="text-xl">{copy.fitNoTitle}</h3>
+        <ul class="mt-4 space-y-3">
+          {copy.fitNo.map((item) => (
+            <li class="flex items-start gap-3">
+              <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-rose-400"></span>
+              <span class="text-muted-foreground">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="section-padding container space-y-10">
+    <h2 class="text-3xl md:text-4xl">{copy.methodTitle}</h2>
+    <div class="grid gap-6 md:grid-cols-3">
+      {copy.methodSteps.map((step) => (
+        <article class="rounded-2xl border border-border/70 bg-card/45 p-6">
+          <h3 class="text-xl leading-tight">{step.title}</h3>
+          <p class="text-muted-foreground mt-4 leading-relaxed">{step.description}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="section-padding container grid gap-8 md:grid-cols-12">
+    <h2 class="text-3xl md:col-span-4 md:text-4xl">{copy.infrastructureTitle}</h2>
+    <div class="space-y-6 md:col-span-8">
+      <div class="text-muted-foreground space-y-5 text-lg leading-relaxed">
+        {copy.infrastructureParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+      <ul class="space-y-3">
+        {copy.infrastructureBullets.map((item) => (
+          <li class="flex items-start gap-3">
+            <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-foreground/80"></span>
+            <span class="text-muted-foreground">{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section-padding container">
+    <div class="rounded-3xl border border-white/30 bg-card/70 p-8 md:p-10">
+      <h2 class="text-3xl leading-tight md:text-4xl">{copy.finalTitle}</h2>
+      <p class="text-muted-foreground mt-5 max-w-4xl text-lg leading-relaxed">
+        {copy.finalText}
+      </p>
+      <a
+        href={localizeHref(locale, '/contact')}
+        class="mt-7 inline-flex items-center justify-center rounded-full bg-[#2f7cc7] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(47,124,199,0.28)] transition hover:bg-[#2a71b6]"
+      >
+        {copy.finalCta}
+      </a>
+    </div>
+  </section>
 </DefaultLayout>

@@ -119,7 +119,7 @@ export const Process = ({ title, steps }: ProcessProps) => {
               onMouseLeave={handleMouseLeave}
               onMouseMove={(e) => handleMouseMove(e, index)}
             >
-              <h3 className="text-lg">{step.title}</h3>
+              <h3 className="text-lg">{step.title || 'Step'}</h3>
               <p className="text-muted-foreground text-lg">
                 {step.description}
               </p>
