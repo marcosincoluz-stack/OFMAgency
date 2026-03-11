@@ -114,7 +114,8 @@ export function CaseStudyCarousel({
     <Carousel
       setApi={setApi}
       opts={{
-        align: 'center',
+        align: 'start',
+        containScroll: 'trimSnaps',
         loop: totalSlides > 2,
       }}
       className="section-padding w-full select-none"
@@ -162,9 +163,7 @@ export function CaseStudyCarousel({
               key={index}
               className={cn(
                 'justify-start pl-0!',
-                hasFewSlides
-                  ? 'basis-full 2xl:basis-full 3xl:basis-full 4xl:basis-full 5xl:basis-full'
-                  : '2xl:basis-[86%] 3xl:basis-[80%] 4xl:basis-[78%] 5xl:basis-[65%]',
+                'basis-full',
               )}
             >
               <div

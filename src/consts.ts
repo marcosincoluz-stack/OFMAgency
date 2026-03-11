@@ -1,14 +1,14 @@
 // Place any global data in this file.
 // You can import this data from anywhere in your site by using the `import` keyword.
 
-export const SITE_TITLE = 'Hive - Modern Astro Template';
+export const SITE_TITLE = 'Velour - Agencia OnlyFans';
 export const SITE_DESCRIPTION =
-  'A modern, fully featured Astro template built with Shadcn/UI, Tailwind & MDX.';
+  'Velour es una agencia OnlyFans especializada en crecimiento, monetizacion y operaciones 24/7.';
 
 export const SITE_METADATA = {
   title: {
     default: SITE_TITLE,
-    template: '%s | Hive',
+    template: '%s | Velour',
   },
   description: SITE_DESCRIPTION,
   keywords: [
@@ -38,13 +38,13 @@ export const SITE_METADATA = {
   openGraph: {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    siteName: 'Hive',
+    siteName: 'Velour',
     images: [
       {
         url: '/images/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Hive - Modern Astro Template',
+        alt: 'Velour - Agencia OnlyFans',
       },
     ],
   },
