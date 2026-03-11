@@ -145,7 +145,12 @@ export function CaseStudyCarousel({
           return (
             <CarouselItem
               key={index}
-              className="3xl:basis-[80%] 5xl:basis-[65%] 4xl:basis-[78%] justify-start pl-0! 2xl:basis-[86%]"
+              className={cn(
+                'justify-start pl-0!',
+                hasFewSlides
+                  ? 'basis-full 2xl:basis-full 3xl:basis-full 4xl:basis-full 5xl:basis-full'
+                  : '2xl:basis-[86%] 3xl:basis-[80%] 4xl:basis-[78%] 5xl:basis-[65%]',
+              )}
             >
               <div
                 className={cn(
