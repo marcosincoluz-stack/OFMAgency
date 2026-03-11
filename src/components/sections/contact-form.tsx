@@ -60,6 +60,19 @@ const contentTimeByLocale = {
   ],
 } as const;
 
+const validationMessages = {
+  es: {
+    required: 'Completa los campos obligatorios para continuar.',
+    invalidEmail: 'Introduce un e-mail valido (ejemplo: nombre@dominio.com).',
+  },
+  en: {
+    required: 'Please complete all required fields to continue.',
+    invalidEmail: 'Please enter a valid email (example: name@domain.com).',
+  },
+} as const;
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 export function ContactForm({ locale = 'es' }: { locale?: Locale }) {
   const dict = getDictionary(locale);
   const contactFormEndpoint = import.meta.env.PUBLIC_CONTACT_FORM_ENDPOINT?.trim();
@@ -89,15 +102,46 @@ export function ContactForm({ locale = 'es' }: { locale?: Locale }) {
       return;
     }
 
+    const name = String(formData.get('name') ?? '').trim();
+    const email = String(formData.get('email') ?? '').trim().toLowerCase();
+    const telegram = String(formData.get('telegram') ?? '').trim();
+    const social = String(formData.get('social') ?? '').trim();
+    const details = String(formData.get('details') ?? '').trim();
+    const servicesText = selectedServices.join(', ');
+    const accountStage = String(formData.get('account_stage') ?? '').trim();
+    const contentTime = String(formData.get('content_time') ?? '').trim();
+
+    if (!name || !email || !telegram || !social || !accountStage || !contentTime) {
+      setStatus('error');
+      setMessage(validationMessages[locale].required);
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      setStatus('error');
+      setMessage(validationMessages[locale].invalidEmail);
+      return;
+    }
+
     const payload = {
-      name: String(formData.get('name') ?? ''),
-      email: String(formData.get('email') ?? ''),
-      telegram: String(formData.get('telegram') ?? ''),
-      social: String(formData.get('social') ?? ''),
-      services: selectedServices,
-      accountStage: String(formData.get('account_stage') ?? ''),
-      contentTime: String(formData.get('content_time') ?? ''),
-      details: String(formData.get('details') ?? ''),
+      name,
+      email,
+      telegram,
+      social,
+      // Use a flat string for maximum webhook compatibility.
+      services: servicesText,
+      servicesList: selectedServices,
+      accountStage,
+      contentTime,
+      details,
+      // Some providers (Formspree/webhooks) expect a "message" field.
+      message:
+        details ||
+        [
+          `Services: ${servicesText}`,
+          `Account stage: ${accountStage}`,
+          `Content time: ${contentTime}`,
+        ].join('\n'),
       locale,
       submittedAt: new Date().toISOString(),
       source: typeof window !== 'undefined' ? window.location.href : '',
@@ -107,7 +151,7 @@ export function ContactForm({ locale = 'es' }: { locale?: Locale }) {
       setStatus('submitting');
       setMessage(dict.contact.submitting);
 
-      const response = await fetch(contactFormEndpoint, {
+      let response = await fetch(contactFormEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,8 +160,39 @@ export function ContactForm({ locale = 'es' }: { locale?: Locale }) {
         body: JSON.stringify(payload),
       });
 
+      // Some providers reject JSON payloads with 422/415 and require form encoding.
+      if (!response.ok && (response.status === 422 || response.status === 415)) {
+        const encodedPayload = new URLSearchParams();
+        encodedPayload.set('name', payload.name);
+        encodedPayload.set('email', payload.email);
+        encodedPayload.set('telegram', payload.telegram);
+        encodedPayload.set('social', payload.social);
+        encodedPayload.set('services', payload.services);
+        encodedPayload.set('accountStage', payload.accountStage);
+        encodedPayload.set('contentTime', payload.contentTime);
+        encodedPayload.set('details', payload.details);
+        encodedPayload.set('message', payload.message);
+        encodedPayload.set('locale', payload.locale);
+        encodedPayload.set('submittedAt', payload.submittedAt);
+        encodedPayload.set('source', payload.source);
+
+        response = await fetch(contactFormEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            Accept: 'application/json',
+          },
+          body: encodedPayload.toString(),
+        });
+      }
+
       if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
+        const errorText = await response.text().catch(() => '');
+        throw new Error(
+          `Request failed with status ${response.status}${
+            errorText ? `: ${errorText}` : ''
+          }`,
+        );
       }
 
       setStatus('success');
