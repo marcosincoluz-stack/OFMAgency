@@ -1,17 +1,16 @@
 'use client';
 
 import { Clock } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import Logo from '@/components/layout/logo';
 import { Button } from '@/components/ui/button';
-import { useCurrentTime } from '@/hooks/use-current-time';
 import { CONTACT_EMAIL, SOCIAL_LINKS, getNavItems } from '@/lib/constants';
 import { getDictionary } from '@/lib/i18n-dictionary';
 import { localizeHref, stripLocaleFromPath, withLocale, type Locale } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/elements/theme-toggle';
+import { useCurrentTime } from '@/hooks/use-current-time';
 
 import '@/styles/navbar-animation.css';
 
@@ -28,8 +27,9 @@ export const Navbar = ({
   const [shouldRender, setShouldRender] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isNavbarHidden, setIsNavbarHidden] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const [isOpening, setIsOpening] = useState(false);
+  const lastScrollYRef = useRef(0);
+  const tickingRef = useRef(false);
 
   const dict = getDictionary(locale);
   const navItems = useMemo(() => getNavItems(locale), [locale]);
@@ -46,21 +46,27 @@ export const Navbar = ({
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const scrollThreshold = 50;
+      if (tickingRef.current) return;
 
-      if (currentScrollY < scrollThreshold) {
-        setIsNavbarHidden(false);
-      } else if (currentScrollY > lastScrollY) {
-        setIsNavbarHidden(true);
-      }
+      tickingRef.current = true;
+      window.requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        const scrollThreshold = 50;
 
-      setLastScrollY(currentScrollY);
+        if (currentScrollY < scrollThreshold) {
+          setIsNavbarHidden(false);
+        } else if (currentScrollY > lastScrollYRef.current) {
+          setIsNavbarHidden(true);
+        }
+
+        lastScrollYRef.current = currentScrollY;
+        tickingRef.current = false;
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   const handleToggle = () => {
     if (!isMenuOpen) {
@@ -136,73 +142,64 @@ export const Navbar = ({
             <Logo />
           </div>
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={isMenuOpen ? 'open' : 'closed'}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className={cn('hidden w-20 justify-end gap-6 md:flex')}
-            >
-              {isMenuOpen ? (
-                <>
-                  {SOCIAL_LINKS.map((link) => (
-                    <a
-                      key={link.name}
-                      className="animated-underline flex h-9 items-center justify-center whitespace-nowrap"
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {link.icon}
-                    </a>
-                  ))}
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="outline"
-                    asChild
-                    className={cn((isHome || isAnimating) && 'text-background')}
+          <div className={cn('hidden shrink-0 items-center justify-end gap-6 md:flex')}>
+            {isMenuOpen ? (
+              <>
+                {SOCIAL_LINKS.map((link) => (
+                  <a
+                    key={link.name}
+                    className="animated-underline flex h-9 items-center justify-center whitespace-nowrap"
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    <a href={localizeHref(locale, '/contact')}>{dict.nav.workWithUs}</a>
-                  </Button>
-                  <div className="flex items-center rounded-full border border-border/60 bg-background/60 p-0.5 text-xs backdrop-blur-sm">
-                    <a
-                      href={esPath}
-                      onClick={() => setLocaleCookie('es')}
-                      className={cn(
-                        'rounded-full px-2 py-1 transition-colors',
-                        locale === 'es' ? 'bg-foreground text-background' : 'text-foreground/70',
-                      )}
-                    >
-                      {dict.localeSwitcher.es}
-                    </a>
-                    <a
-                      href={enPath}
-                      onClick={() => setLocaleCookie('en')}
-                      className={cn(
-                        'rounded-full px-2 py-1 transition-colors',
-                        locale === 'en' ? 'bg-foreground text-background' : 'text-foreground/70',
-                      )}
-                    >
-                      {dict.localeSwitcher.en}
-                    </a>
-                  </div>
-                  <Button
-                    variant="secondary"
-                    className="hover:bg-secondary cursor-normal pointer-events-none"
-                    tabIndex={-1}
+                    {link.icon}
+                  </a>
+                ))}
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  asChild
+                  className={cn((isHome || isAnimating) && 'text-background')}
+                >
+                  <a href={localizeHref(locale, '/contact')}>{dict.nav.workWithUs}</a>
+                </Button>
+                <div className="flex items-center rounded-full border border-border/60 bg-background/60 p-0.5 text-xs backdrop-blur-sm">
+                  <a
+                    href={esPath}
+                    onClick={() => setLocaleCookie('es')}
+                    className={cn(
+                      'rounded-full px-2 py-1 transition-colors',
+                      locale === 'es' ? 'bg-foreground text-background' : 'text-foreground/70',
+                    )}
                   >
-                    <Clock />
-                    {currentTime}
-                  </Button>
-                  <ThemeToggle />
-                </>
-              )}
-            </motion.div>
-          </AnimatePresence>
+                    {dict.localeSwitcher.es}
+                  </a>
+                  <a
+                    href={enPath}
+                    onClick={() => setLocaleCookie('en')}
+                    className={cn(
+                      'rounded-full px-2 py-1 transition-colors',
+                      locale === 'en' ? 'bg-foreground text-background' : 'text-foreground/70',
+                    )}
+                  >
+                    {dict.localeSwitcher.en}
+                  </a>
+                </div>
+                <Button
+                  variant="secondary"
+                  className="hover:bg-secondary cursor-normal pointer-events-none"
+                  tabIndex={-1}
+                >
+                  <Clock />
+                  <span>{currentTime}</span>
+                </Button>
+                <ThemeToggle />
+              </>
+            )}
+          </div>
         </div>
       </header>
 

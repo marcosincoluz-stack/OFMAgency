@@ -2,21 +2,23 @@
 import BaseHead from '@/components/BaseHead.astro';
 import Footer from '@/components/layout/footer';
 import { Navbar } from '@/components/layout/navbar';
+import { DEFAULT_LOCALE, getLocaleFromPath } from '@/lib/i18n';
 
 const { title, description, frontmatter } = Astro.props;
 const pathname = Astro.url.pathname;
+const locale = getLocaleFromPath(pathname) ?? DEFAULT_LOCALE;
 
 const pageTitle = frontmatter?.title || title;
 ---
 
-<html lang="en">
+<html lang={locale}>
   <head>
-    <BaseHead title={title} description={description} />
+    <BaseHead title={title} description={description} locale={locale} />
   </head>
   <body
     class={`h-screen antialiased [--header-height:calc(var(--spacing)*14)] lg:[--header-height:calc(var(--spacing)*23)]`}
   >
-    <Navbar pathname={pathname} client:load />
+    <Navbar pathname={pathname} locale={locale} client:load />
     <main>
       <section class="section-padding">
         <div class="container">
@@ -36,6 +38,6 @@ const pageTitle = frontmatter?.title || title;
         </div>
       </section>
     </main>
-    <Footer pathname={pathname} client:idle />
+    <Footer locale={locale} client:load />
   </body>
 </html>

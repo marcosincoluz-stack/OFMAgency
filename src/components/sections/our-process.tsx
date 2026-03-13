@@ -1,79 +1,77 @@
 import type { Locale } from '@/lib/i18n';
-import { getDictionary } from '@/lib/i18n-dictionary';
 import { Process } from './process';
 
 const processStepsByLocale = {
   es: [
     {
-      title: 'Diagnostico',
+      title: '1) Diagnostico en 48h',
       description:
-        'Definimos objetivos, posicionamiento y fuentes de ingresos para construir un plan operativo realista.',
+        'Analizamos tu punto de partida: si empiezas de cero, si tu cuenta esta estancada o si tus ingresos son inestables.',
       image: '/images/process/discovery.webp',
     },
     {
-      title: 'Estrategia',
+      title: '2) Plan de accion',
       description:
-        'Diseñamos estructura de oferta, pricing y guiones de venta para elevar conversion y ticket medio.',
+        'Definimos un plan claro y facil de seguir: que hacer cada semana, que publicar y que priorizar.',
       image: '/images/process/research.webp',
     },
     {
-      title: 'Implementacion',
+      title: '3) Operativa 24/7',
       description:
-        'Activamos chatters, automatizaciones y protocolos diarios para operar la cuenta sin fricciones.',
+        'Organizamos la gestion de DMs con respuestas claras, seguimiento y ritmo diario para mejorar conversion.',
       image: '/images/process/concept.webp',
     },
     {
-      title: 'Optimizacion',
+      title: '4) Optimizacion semanal',
       description:
-        'Iteramos mensajes, contenido y promociones con datos semanales para mejorar resultados continuos.',
+        'Revisamos resultados cada semana y ajustamos lo necesario para mantener el crecimiento.',
       image: '/images/process/refinement.webp',
     },
     {
-      title: 'Escalado',
+      title: '5) Escalado estable',
       description:
-        'Consolidamos sistemas para sostener crecimiento y rentabilidad a largo plazo.',
+        'Cuando el sistema funciona, lo escalamos para que crezcas con mas estabilidad y menos friccion.',
       image: '/images/process/delivery.webp',
     },
   ],
   en: [
     {
-      title: 'Discovery',
+      title: '1) 48h Diagnosis',
       description:
-        'We align goals, positioning and revenue targets to build a realistic execution plan.',
+        'We map your real stage: new account, stuck account, or unstable revenue. We identify time, sales, and conversion bottlenecks.',
       image: '/images/process/discovery.webp',
     },
     {
-      title: 'Strategy',
+      title: '2) Anti-chaos plan',
       description:
-        'We design offer architecture, pricing and sales scripts to increase conversion and average spend.',
+        'You get a simple execution plan: what to post, what to sell in DMs, and what to prioritize every week.',
       image: '/images/process/research.webp',
     },
     {
-      title: 'Implementation',
+      title: '3) 24/7 Operations',
       description:
-        'We activate chatters, automation and daily SOPs to run account operations without friction.',
+        'We set scripts, follow-ups, and response flow so conversations do not die and sales stay consistent.',
       image: '/images/process/concept.webp',
     },
     {
-      title: 'Optimization',
+      title: '4) Weekly optimization',
       description:
-        'We iterate messaging, content and promotions weekly using performance data.',
+        'We review core metrics and adjust only what impacts revenue. Fast, clear, no fluff.',
       image: '/images/process/refinement.webp',
     },
     {
-      title: 'Scaling',
+      title: '5) Stable scaling',
       description:
-        'We harden systems to sustain long-term growth and profitability.',
+        'You move from random spikes to a repeatable system with more predictability and less daily stress.',
       image: '/images/process/delivery.webp',
     },
   ],
 } as const;
 
 export const OurProcess = ({ locale = 'es' }: { locale?: Locale }) => {
-  const dict = getDictionary(locale);
   return (
     <Process
-      title={dict.serviceDetail.ourProcess}
+      title={locale === 'es' ? 'Como trabajamos contigo' : 'How we work with you'}
       steps={processStepsByLocale[locale]}
     />
   );

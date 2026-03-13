@@ -24,5 +24,9 @@ const dict = getDictionary(locale);
   description={dict.pages.services.description}
 >
   <OurProcess locale={locale} />
-  <Cta locale={locale} />
+  <Cta
+    locale={locale}
+    title={dict.servicesPage.ctaTitle}
+    buttonText={dict.servicesPage.ctaButton}
+  />
 </DefaultLayout>

@@ -58,9 +58,9 @@ type BentoMarketConfig = {
   globe: FeatureCopy;
 };
 
-const LazyGlobe3D = lazy(async () => {
-  const module = await import('@/components/ui/3d-globe');
-  return { default: module.Globe3D };
+const LazyWorldMap = lazy(async () => {
+  const module = await import('@/components/ui/world-map');
+  return { default: module.default };
 });
 
 const bentoConfig: Record<Locale, Record<Market, BentoMarketConfig>> = {
@@ -205,26 +205,6 @@ const bentoConfig: Record<Locale, Record<Market, BentoMarketConfig>> = {
   },
 };
 
-const sampleMarkers = [
-  { lat: 41.8781, lng: -87.6298, src: 'https://assets.aceternity.com/avatars/1.webp', label: 'Chicago' },
-  { lat: 32.7767, lng: -96.797, src: 'https://assets.aceternity.com/avatars/2.webp', label: 'Dallas' },
-  { lat: 29.7604, lng: -95.3698, src: 'https://assets.aceternity.com/avatars/3.webp', label: 'Houston' },
-  { lat: 39.7392, lng: -104.9903, src: 'https://assets.aceternity.com/avatars/4.webp', label: 'Denver' },
-  { lat: 39.0997, lng: -94.5786, src: 'https://assets.aceternity.com/avatars/5.webp', label: 'Kansas City' },
-  { lat: 38.627, lng: -90.1994, src: 'https://assets.aceternity.com/avatars/6.webp', label: 'St. Louis' },
-  { lat: 44.9778, lng: -93.265, src: 'https://assets.aceternity.com/avatars/7.webp', label: 'Minneapolis' },
-  { lat: 40.4168, lng: -3.7038, src: 'https://assets.aceternity.com/avatars/8.webp', label: 'Madrid' },
-  { lat: 41.3851, lng: 2.1734, src: 'https://assets.aceternity.com/avatars/9.webp', label: 'Barcelona' },
-  { lat: 48.8566, lng: 2.3522, src: 'https://assets.aceternity.com/avatars/10.webp', label: 'Paris' },
-  { lat: 52.52, lng: 13.405, src: 'https://assets.aceternity.com/avatars/11.webp', label: 'Berlin' },
-  { lat: 41.9028, lng: 12.4964, src: 'https://assets.aceternity.com/avatars/12.webp', label: 'Rome' },
-  { lat: 51.5074, lng: -0.1278, src: 'https://assets.aceternity.com/avatars/13.webp', label: 'London' },
-  { lat: 55.7558, lng: 37.6173, src: 'https://assets.aceternity.com/avatars/6.webp', label: 'Moscow' },
-  { lat: 4.711, lng: -74.0721, src: 'https://assets.aceternity.com/avatars/3.webp', label: 'Bogota' },
-  { lat: -23.5505, lng: -46.6333, src: 'https://assets.aceternity.com/avatars/9.webp', label: 'Sao Paulo' },
-  { lat: -34.6037, lng: -58.3816, src: 'https://assets.aceternity.com/avatars/12.webp', label: 'Buenos Aires' },
-];
-
 export function BentoDemo({ locale = 'es', market = 'global' }: { locale?: Locale; market?: Market }) {
   const dict = getDictionary(locale);
   const localeConfig = bentoConfig[locale] ?? bentoConfig.es;
@@ -302,16 +282,7 @@ export function BentoDemo({ locale = 'es', market = 'global' }: { locale?: Local
       href: '#',
       cta: dict.common.learnMore,
       className: 'col-span-3 lg:col-span-1',
-      hideMeta: true,
-      overlayClassName:
-        'pointer-events-none absolute inset-0 bg-gradient-to-t from-background/30 via-background/5 to-transparent',
-      background: (
-        <Globe3DPreview
-          title={activeConfig.globe.name}
-          description={activeConfig.globe.description}
-          className="absolute inset-0 transition-all duration-300 ease-out group-hover:scale-[1.02]"
-        />
-      ),
+      background: <WorldMapPreview className="absolute inset-0" />,
     });
   }
 
@@ -504,102 +475,84 @@ function AnimatedListPreview({ className, locale = 'es' }: { className?: string;
   );
 }
 
-function Globe3DPreview({
-  className,
-  title,
-  description,
-}: {
-  className?: string;
-  title: string;
-  description: string;
-}) {
+function WorldMapPreview({ className }: { className?: string }) {
   const previewRef = useRef<HTMLDivElement | null>(null);
-  const [allowMotion, setAllowMotion] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isInView, setIsInView] = useState(false);
+  const [shouldLoadMap, setShouldLoadMap] = useState(false);
+  const [allowMotion, setAllowMotion] = useState(true);
 
   useEffect(() => {
-    const motionQuery = window.matchMedia('(prefers-reduced-motion: no-preference)');
-    const mobileQuery = window.matchMedia('(max-width: 768px)');
-    const update = () => {
-      setAllowMotion(motionQuery.matches);
-      setIsMobile(mobileQuery.matches);
-    };
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setAllowMotion(!mediaQuery.matches);
 
     update();
-    motionQuery.addEventListener?.('change', update);
-    mobileQuery.addEventListener?.('change', update);
-
-    return () => {
-      motionQuery.removeEventListener?.('change', update);
-      mobileQuery.removeEventListener?.('change', update);
-    };
+    mediaQuery.addEventListener?.('change', update);
+    return () => mediaQuery.removeEventListener?.('change', update);
   }, []);
 
   useEffect(() => {
+    if (shouldLoadMap) return;
     const target = previewRef.current;
     if (!target) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting) {
-          setIsInView(true);
+          setShouldLoadMap(true);
           observer.disconnect();
         }
       },
-      { rootMargin: '200px 0px' },
+      { rootMargin: '220px 0px' },
     );
 
     observer.observe(target);
     return () => observer.disconnect();
-  }, []);
+  }, [shouldLoadMap]);
 
-  const shouldRenderGlobe = allowMotion && isInView;
-  const globeMarkers = isMobile ? sampleMarkers.slice(0, 8) : sampleMarkers;
+  const dots = [
+    {
+      start: { lat: 64.2008, lng: -149.4937 },
+      end: { lat: 34.0522, lng: -118.2437 },
+    },
+    {
+      start: { lat: 64.2008, lng: -149.4937 },
+      end: { lat: -15.7975, lng: -47.8919 },
+    },
+    {
+      start: { lat: -15.7975, lng: -47.8919 },
+      end: { lat: 38.7223, lng: -9.1393 },
+    },
+    {
+      start: { lat: 51.5074, lng: -0.1278 },
+      end: { lat: 28.6139, lng: 77.209 },
+    },
+    {
+      start: { lat: 28.6139, lng: 77.209 },
+      end: { lat: 43.1332, lng: 131.9113 },
+    },
+    {
+      start: { lat: 28.6139, lng: 77.209 },
+      end: { lat: -1.2921, lng: 36.8219 },
+    },
+  ];
 
   return (
-    <div
-      ref={previewRef}
-      className={cn(
-        'relative h-[400px] w-full max-w-lg overflow-hidden rounded-xl bg-white p-10 shadow-sm ring-1 shadow-black/10 ring-black/10 dark:bg-neutral-900',
-        className,
-      )}
-    >
-      <h2 className="mb-4 text-2xl font-bold text-neutral-900 dark:text-white">
-        {title}
-      </h2>
-      <p className="max-w-lg text-balance text-neutral-600 dark:text-neutral-400">
-        {description}
-      </p>
-      {shouldRenderGlobe ? (
+    <div ref={previewRef} className={cn('relative h-full w-full overflow-hidden p-2 pt-2', className)}>
+      {shouldLoadMap ? (
         <Suspense
           fallback={
-            <div className="absolute inset-0 animate-pulse bg-gradient-to-b from-slate-200/60 to-transparent dark:from-slate-800/50" />
+            <div className="mx-auto h-[78%] w-[112%] -translate-x-[6%] rounded-xl bg-muted/20 [mask-image:linear-gradient(to_bottom,#000_0%,#000_92%,transparent_100%)]" />
           }
         >
-          <LazyGlobe3D
-            className={cn(
-              'absolute -left-0',
-              isMobile ? '-bottom-72 h-[520px]' : '-bottom-96 h-[700px]',
-            )}
-            markers={globeMarkers}
-            config={{
-              atmosphereColor: '#4da6ff',
-              atmosphereIntensity: isMobile ? 12 : 20,
-              bumpScale: isMobile ? 2.5 : 5,
-              autoRotateSpeed: isMobile ? 0.12 : 0.3,
-              initialRotation: { x: 0, y: -0.7 },
-              markerSize: isMobile ? 0.035 : 0.05,
-              enableZoom: false,
-              enablePan: false,
-            }}
+          <LazyWorldMap
+            dots={dots}
+            animate={allowMotion}
+            className="mx-auto h-[78%] w-[112%] -translate-x-[6%] [mask-image:linear-gradient(to_bottom,#000_0%,#000_92%,transparent_100%)] transition-transform duration-300 ease-out group-hover:scale-[1.02]"
           />
         </Suspense>
       ) : (
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -bottom-60 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_35%_30%,rgba(77,166,255,0.33),rgba(77,166,255,0.10)_42%,transparent_70%)]" />
-        </div>
+        <div className="mx-auto h-[78%] w-[112%] -translate-x-[6%] rounded-xl bg-muted/20 [mask-image:linear-gradient(to_bottom,#000_0%,#000_92%,transparent_100%)]" />
       )}
+      <div className="from-background pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t" />
     </div>
   );
 }

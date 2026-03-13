@@ -6,6 +6,7 @@ import { BentoDemo } from '@/components/sections/bento-demo';
 import BlogLinks from '@/components/sections/blog-links.astro';
 import { CaseStudies } from '@/components/sections/case-studies';
 import { Cta } from '@/components/sections/cta';
+import { FaqSection } from '@/components/sections/faq';
 import { Hero } from '@/components/sections/hero';
 import { Testimonials } from '@/components/sections/testimonials';
 import DefaultLayout from '@/layouts/DefaultLayout.astro';
@@ -17,7 +18,7 @@ import { getAllProjects } from '@/lib/projects';
 const locale: Locale = Astro.locals.locale ?? DEFAULT_LOCALE;
 const allProjects = await getAllProjects();
 const blogPosts = await getAllBlogPosts(locale);
-const compactProjects = allProjects.map((project) => ({
+const heroProjects = allProjects.slice(0, 4).map((project) => ({
   id: project.id,
   name: project.name,
   slug: project.slug,
@@ -29,21 +30,29 @@ const compactProjects = allProjects.map((project) => ({
   hideLogoOverlay: project.hideLogoOverlay,
   category: project.category,
   url: project.url,
-  title: project.title,
-  description: project.description,
-  images: project.images,
+  images: project.images.slice(0, 1),
 }));
 
-// Use ProjectFrontmatter (serializable) instead of EnrichedProject (has React components)
-const heroProjects = compactProjects.slice(0, 4);
-const caseStudyProjects = [
-  compactProjects.find((project) => project.slug === 'nextdock'),
-  compactProjects.find((project) => project.slug === 'nextdock'),
-].filter(Boolean);
+const nextdock = allProjects.find((project) => project.slug === 'nextdock');
+const caseStudyProjects = nextdock
+  ? [
+      {
+        id: nextdock.id,
+        name: nextdock.name,
+        slug: nextdock.slug,
+        logo: nextdock.logo,
+        category: nextdock.category,
+        url: nextdock.url,
+        title: nextdock.title,
+        description: nextdock.description,
+        images: nextdock.images,
+      },
+    ]
+  : [];
 ---
 
 <DefaultLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
-  <Hero projects={heroProjects} client:idle />
+  <Hero projects={heroProjects} client:load />
   <div class="[content-visibility:auto] [contain-intrinsic-size:800px]">
     <AboutIntro />
   </div>
@@ -61,5 +70,8 @@ const caseStudyProjects = [
   </div>
   <div class="[content-visibility:auto] [contain-intrinsic-size:420px]">
     <Cta />
+  </div>
+  <div class="[content-visibility:auto] [contain-intrinsic-size:980px]">
+    <FaqSection />
   </div>
 </DefaultLayout>

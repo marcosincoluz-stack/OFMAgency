@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Generador de Contratos - Velour®</title>
+    <title>Generador de PDFs - Velour®</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -214,8 +214,52 @@
         min-height: 1.3em;
       }
 
+      .documents {
+        margin-top: 16px;
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .doc-card {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(8, 12, 18, 0.5);
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .doc-card h3 {
+        margin: 0;
+        font-size: 0.96rem;
+      }
+
+      .doc-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.86rem;
+        line-height: 1.5;
+      }
+
+      .doc-card.full {
+        grid-column: 1 / -1;
+      }
+
+      .cta.alt {
+        background: linear-gradient(180deg, #202734 0%, #141b27 100%);
+      }
+
+      .cta.ghost {
+        background: linear-gradient(180deg, #1b2028 0%, #12161d 100%);
+      }
+
       @media (max-width: 860px) {
         .controls {
+          grid-template-columns: 1fr;
+        }
+
+        .documents {
           grid-template-columns: 1fr;
         }
       }
@@ -224,17 +268,17 @@
   <body>
     <main class="page">
       <div class="brand-row">
-        <img id="brandLogo" class="brand-logo" src="public/favicon/favicon-96x96.png" alt="Logo Velour®" />
+        <img id="brandLogo" class="brand-logo" src="/favicon/favicon-96x96.png" alt="Logo Velour®" />
         <p class="brand-name">Velour®</p>
       </div>
 
-      <h1>Generador de Contratos - Velour®</h1>
+      <h1>Generador de PDFs - Velour®</h1>
       <p class="subtitle">
-        Documento legal en PDF con maquetación profesional, cabecera corporativa y descarga inmediata.
+        Interfaz de documentos con múltiples botones para generar contratos y propuestas en PDF con estilo corporativo.
       </p>
 
       <section class="panel" aria-labelledby="panelTitle">
-        <h2 id="panelTitle" style="margin: 0 0 14px; font-size: 1rem; font-weight: 600">Datos del acuerdo</h2>
+        <h2 id="panelTitle" style="margin: 0 0 14px; font-size: 1rem; font-weight: 600">Datos para los documentos</h2>
 
         <div class="controls">
           <div class="field">
@@ -250,7 +294,7 @@
 
         <article class="preview">
           <div class="preview-header">
-            <p><strong>Previsualización del contrato</strong></p>
+            <p><strong>Previsualización base (Contrato)</strong></p>
             <p class="meta" id="previewDate"></p>
           </div>
 
@@ -277,8 +321,27 @@
           </div>
         </article>
 
+        <div class="documents">
+          <article class="doc-card">
+            <h3>Contrato de Representación</h3>
+            <p>Genera el acuerdo legal operativo con formato profesional y firma de ambas partes.</p>
+            <button id="downloadAgreementBtn" class="cta" type="button">Generar Contrato PDF</button>
+          </article>
+
+          <article class="doc-card">
+            <h3>Propuesta de Representación Exclusiva</h3>
+            <p>Genera el pitch deck en 7 páginas con narrativa estratégica y cierre comercial.</p>
+            <button id="downloadProposalBtn" class="cta alt" type="button">Generar Propuesta PDF</button>
+          </article>
+
+          <article class="doc-card full">
+            <h3>Pack Completo</h3>
+            <p>Descarga secuencial del Contrato y de la Propuesta con el mismo estilo visual Velour®.</p>
+            <button id="downloadBundleBtn" class="cta ghost" type="button">Generar Ambos PDFs</button>
+          </article>
+        </div>
+
         <div class="actions">
-          <button id="downloadBtn" class="cta" type="button">Generar y Descargar PDF</button>
           <p id="statusText" class="status"></p>
         </div>
       </section>
@@ -287,7 +350,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
       const defaultLogoCandidates = [
-        "public/favicon/favicon-96x96.png",
         "./favicon/favicon-96x96.png",
         "/favicon/favicon-96x96.png",
       ];
@@ -298,7 +360,9 @@
       const previewDateElement = document.getElementById("previewDate");
       const previewCurrentDateElement = document.getElementById("previewCurrentDate");
       const previewCreatorNameElement = document.getElementById("previewCreatorName");
-      const downloadBtn = document.getElementById("downloadBtn");
+      const downloadAgreementBtn = document.getElementById("downloadAgreementBtn");
+      const downloadProposalBtn = document.getElementById("downloadProposalBtn");
+      const downloadBundleBtn = document.getElementById("downloadBundleBtn");
       const statusText = document.getElementById("statusText");
 
       let uploadedLogoDataUrl = null;
@@ -372,8 +436,15 @@
         return null;
       }
 
+      function setButtonsDisabled(isDisabled) {
+        [downloadAgreementBtn, downloadProposalBtn, downloadBundleBtn].forEach((button) => {
+          button.disabled = isDisabled;
+        });
+      }
+
       function drawPageHeader(doc, options) {
-        const { pageWidth, marginX, headerY, headerH, dateLabel, logoDataUrl, isFirstPage, pageNumber } = options;
+        const { pageWidth, marginX, headerY, headerH, dateLabel, logoDataUrl, isFirstPage, pageNumber, documentLabel } =
+          options;
 
         doc.setFillColor(13, 16, 21);
         doc.roundedRect(marginX, headerY, pageWidth - marginX * 2, headerH, 2.2, 2.2, "F");
@@ -396,7 +467,7 @@
         doc.setFont("helvetica", "normal");
         doc.setFontSize(9.2);
         doc.setTextColor(210, 217, 227);
-        doc.text("Acuerdo de Representación y Gestión", textStartX, contentY + 4.2);
+        doc.text(documentLabel, textStartX, contentY + 4.2);
 
         doc.setFontSize(8.4);
         doc.setTextColor(185, 194, 206);
@@ -415,162 +486,284 @@
         });
       }
 
-      async function generatePdf() {
-        downloadBtn.disabled = true;
-        statusText.textContent = "Generando PDF profesional...";
+      function createPdfContext(doc, options) {
+        const { currentDate, logoDataUrl, documentLabel } = options;
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const marginX = 18;
+        const marginBottom = 20;
+        const lineHeight = 4.8;
+        const bulletIndent = 4.8;
+        const textIndent = 9;
 
-        try {
-          const { jsPDF } = window.jspdf;
-          const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+        let y = 0;
+        let pageNumber = 1;
 
-          const pageWidth = doc.internal.pageSize.getWidth();
-          const pageHeight = doc.internal.pageSize.getHeight();
-          const marginX = 18;
-          const marginBottom = 20;
-          const lineHeight = 4.8;
-          const bulletIndent = 4.8;
-          const textIndent = 9;
-
-          const currentDate = formatCurrentDate();
-          const creatorName = getCreatorName();
-          const logoDataUrl = await resolveLogoDataUrl();
-
-          let pageNumber = 1;
-          let y = 0;
-
-          const addNewPage = (isFirstPage = false) => {
-            if (!isFirstPage) {
-              doc.addPage();
-              pageNumber += 1;
-            }
-            const headerY = 12;
-            const headerH = isFirstPage ? 22 : 16;
-            drawPageHeader(doc, {
-              pageWidth,
-              marginX,
-              headerY,
-              headerH,
-              dateLabel: currentDate,
-              logoDataUrl,
-              isFirstPage,
-              pageNumber,
-            });
-            y = headerY + headerH + 9;
-            doc.setTextColor(24, 28, 35);
-          };
-
-          const ensureSpace = (requiredHeight) => {
-            if (y + requiredHeight > pageHeight - marginBottom) {
-              addNewPage(false);
-            }
-          };
-
-          const writeTitle = (text) => {
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(13.2);
-            const lines = doc.splitTextToSize(text, pageWidth - marginX * 2);
-            ensureSpace(lines.length * 6 + 1);
-            doc.text(lines, marginX, y);
-            y += lines.length * 6.2 + 2;
-          };
-
-          const writeSectionTitle = (text) => {
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(11.2);
-            const lines = doc.splitTextToSize(text, pageWidth - marginX * 2);
-            ensureSpace(lines.length * 5 + 2);
-            doc.text(lines, marginX, y);
-            y += lines.length * 5 + 1.6;
-          };
-
-          const writeParagraph = (text) => {
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(10.6);
-            const lines = doc.splitTextToSize(text, pageWidth - marginX * 2);
-            ensureSpace(lines.length * lineHeight + 1);
-            doc.text(lines, marginX, y);
-            y += lines.length * lineHeight + 1.3;
-          };
-
-          const writeBullet = (text) => {
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(10.4);
-            const lines = doc.splitTextToSize(text, pageWidth - marginX * 2 - textIndent);
-            const blockHeight = lines.length * lineHeight + 1;
-            ensureSpace(blockHeight);
-            doc.setFillColor(24, 28, 35);
-            doc.circle(marginX + bulletIndent, y - 1.35, 0.62, "F");
-            doc.text(lines, marginX + textIndent, y);
-            y += blockHeight;
-          };
-
-          addNewPage(true);
-
-          writeTitle("ACUERDO DE REPRESENTACIÓN Y GESTIÓN - VELOUR®");
-
-          writeSectionTitle("1. Partes Involucradas");
-          writeParagraph("La Agencia: Velour®.");
-          writeParagraph(`La Creadora: ${creatorName}`);
-          writeParagraph(`Fecha: ${currentDate}`);
-
-          writeSectionTitle("2. Objeto del Contrato");
-          writeParagraph(
-            "La Creadora otorga a la Agencia los derechos exclusivos para gestionar, operar y comercializar sus cuentas de OnlyFans.",
-          );
-
-          writeSectionTitle("3. Obligaciones de la Agencia (Velour®)");
-          writeBullet("Proporcionar un equipo de chatters para operar la cuenta.");
-          writeBullet("Generar tráfico hacia el perfil de la creadora.");
-          writeBullet("Gestionar el backend y la organización del contenido.");
-          writeBullet("Cubrir todos los costes relacionados con marketing y equipo.");
-          writeBullet("Garantizar la privacidad y seguridad de la operativa (100% Privacy & Security Guarantee).");
-
-          writeSectionTitle("4. Obligaciones de la Creadora");
-          writeBullet("Producir contenido semanal según lo solicitado por la Agencia.");
-          writeBullet("Estar disponible y receptiva para la operativa.");
-          writeBullet("Utilizar el equipo adecuado para la creación de contenido.");
-          writeBullet("No interactuar de forma independiente con los suscriptores fuera de la plataforma ni eludir a la agencia.");
-
-          writeSectionTitle("5. Condiciones Financieras y Reparto (Split)");
-          writeBullet(
-            "Reparto de Ingresos: El 50% de los ingresos totales será pagado a la Creadora y el 50% será pagado a la Agencia.",
-          );
-
-          writeSectionTitle("6. Confidencialidad y Propiedad Intelectual");
-          writeBullet("La Agencia mantendrá la máxima confidencialidad sobre los datos personales.");
-          writeBullet(
-            "La Agencia tiene licencia total para usar, editar y distribuir el contenido con fines de marketing durante la vigencia del acuerdo.",
-          );
-
-          writeSectionTitle("7. Duración");
-          writeBullet("Plazo Inicial: 6 meses, renovables automáticamente.");
-
-          ensureSpace(28);
-          y += 7;
-          doc.setDrawColor(41, 46, 54);
-          doc.setLineWidth(0.35);
-          doc.line(marginX, y, marginX + 74, y);
-          doc.line(pageWidth - marginX - 74, y, pageWidth - marginX, y);
-
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(10.2);
+        const addNewPage = (isFirstPage = false) => {
+          if (!isFirstPage) {
+            doc.addPage();
+            pageNumber += 1;
+          }
+          const headerY = 12;
+          const headerH = isFirstPage ? 22 : 16;
+          drawPageHeader(doc, {
+            pageWidth,
+            marginX,
+            headerY,
+            headerH,
+            dateLabel: currentDate,
+            logoDataUrl,
+            isFirstPage,
+            pageNumber,
+            documentLabel,
+          });
+          y = headerY + headerH + 9;
           doc.setTextColor(24, 28, 35);
-          doc.text("Firma de la Agencia", marginX, y + 5);
-          doc.text("Firma de la Creadora", pageWidth - marginX - 74, y + 5);
+        };
 
+        const ensureSpace = (requiredHeight) => {
+          if (y + requiredHeight > pageHeight - marginBottom) {
+            addNewPage(false);
+          }
+        };
+
+        const writeTitle = (text, fontSize = 13.2) => {
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(fontSize);
+          const lines = doc.splitTextToSize(text, pageWidth - marginX * 2);
+          ensureSpace(lines.length * 6 + 1);
+          doc.text(lines, marginX, y);
+          y += lines.length * 6.2 + 2;
+        };
+
+        const writeSectionTitle = (text) => {
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(11.2);
+          const lines = doc.splitTextToSize(text, pageWidth - marginX * 2);
+          ensureSpace(lines.length * 5 + 2);
+          doc.text(lines, marginX, y);
+          y += lines.length * 5 + 1.6;
+        };
+
+        const writeParagraph = (text, fontSize = 10.6) => {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(fontSize);
+          const lines = doc.splitTextToSize(text, pageWidth - marginX * 2);
+          ensureSpace(lines.length * lineHeight + 1);
+          doc.text(lines, marginX, y);
+          y += lines.length * lineHeight + 1.3;
+        };
+
+        const writeBullet = (text, fontSize = 10.4) => {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(fontSize);
+          const lines = doc.splitTextToSize(text, pageWidth - marginX * 2 - textIndent);
+          const blockHeight = lines.length * lineHeight + 1;
+          ensureSpace(blockHeight);
+          doc.setFillColor(24, 28, 35);
+          doc.circle(marginX + bulletIndent, y - 1.35, 0.62, "F");
+          doc.text(lines, marginX + textIndent, y);
+          y += blockHeight;
+        };
+
+        const addSpace = (amount) => {
+          y += amount;
+        };
+
+        const finalize = () => {
           const totalPages = doc.getNumberOfPages();
           for (let i = 1; i <= totalPages; i += 1) {
             doc.setPage(i);
             drawFooter(doc, pageWidth, pageHeight, i, totalPages);
           }
+        };
 
-          doc.save("Acuerdo_Representacion_Velour.pdf");
-          statusText.textContent = "PDF descargado correctamente.";
-        } catch (error) {
-          console.error(error);
-          statusText.textContent = "Error al generar el PDF. Verifica el logo y vuelve a intentarlo.";
+        return {
+          addNewPage,
+          addSpace,
+          ensureSpace,
+          writeTitle,
+          writeSectionTitle,
+          writeParagraph,
+          writeBullet,
+          finalize,
+          getLayout: () => ({ pageWidth, pageHeight, marginX }),
+          getY: () => y,
+        };
+      }
+
+      async function generateAgreementPdf() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+        const currentDate = formatCurrentDate();
+        const creatorName = getCreatorName();
+        const logoDataUrl = await resolveLogoDataUrl();
+
+        const context = createPdfContext(doc, {
+          currentDate,
+          logoDataUrl,
+          documentLabel: "Acuerdo de Representación y Gestión",
+        });
+
+        context.addNewPage(true);
+        context.writeTitle("ACUERDO DE REPRESENTACIÓN Y GESTIÓN - VELOUR®");
+
+        context.writeSectionTitle("1. Partes Involucradas");
+        context.writeParagraph("La Agencia: Velour®.");
+        context.writeParagraph(`La Creadora: ${creatorName}`);
+        context.writeParagraph(`Fecha: ${currentDate}`);
+
+        context.writeSectionTitle("2. Objeto del Contrato");
+        context.writeParagraph(
+          "La Creadora otorga a la Agencia los derechos exclusivos para gestionar, operar y comercializar sus cuentas de OnlyFans.",
+        );
+
+        context.writeSectionTitle("3. Obligaciones de la Agencia (Velour®)");
+        context.writeBullet("Proporcionar un equipo de chatters para operar la cuenta.");
+        context.writeBullet("Generar tráfico hacia el perfil de la creadora.");
+        context.writeBullet("Gestionar el backend y la organización del contenido.");
+        context.writeBullet("Cubrir todos los costes relacionados con marketing y equipo.");
+        context.writeBullet("Garantizar la privacidad y seguridad de la operativa (100% Privacy & Security Guarantee).");
+
+        context.writeSectionTitle("4. Obligaciones de la Creadora");
+        context.writeBullet("Producir contenido semanal según lo solicitado por la Agencia.");
+        context.writeBullet("Estar disponible y receptiva para la operativa.");
+        context.writeBullet("Utilizar el equipo adecuado para la creación de contenido.");
+        context.writeBullet("No interactuar de forma independiente con los suscriptores fuera de la plataforma ni eludir a la agencia.");
+
+        context.writeSectionTitle("5. Condiciones Financieras y Reparto (Split)");
+        context.writeBullet(
+          "Reparto de Ingresos: El 50% de los ingresos totales será pagado a la Creadora y el 50% será pagado a la Agencia.",
+        );
+
+        context.writeSectionTitle("6. Confidencialidad y Propiedad Intelectual");
+        context.writeBullet("La Agencia mantendrá la máxima confidencialidad sobre los datos personales.");
+        context.writeBullet(
+          "La Agencia tiene licencia total para usar, editar y distribuir el contenido con fines de marketing durante la vigencia del acuerdo.",
+        );
+
+        context.writeSectionTitle("7. Duración");
+        context.writeBullet("Plazo Inicial: 6 meses, renovables automáticamente.");
+
+        context.ensureSpace(28);
+        context.addSpace(7);
+
+        const { pageWidth, marginX } = context.getLayout();
+        const signatureY = context.getY();
+        doc.setDrawColor(41, 46, 54);
+        doc.setLineWidth(0.35);
+        doc.line(marginX, signatureY, marginX + 74, signatureY);
+        doc.line(pageWidth - marginX - 74, signatureY, pageWidth - marginX, signatureY);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10.2);
+        doc.setTextColor(24, 28, 35);
+        doc.text("Firma de la Agencia", marginX, signatureY + 5);
+        doc.text("Firma de la Creadora", pageWidth - marginX - 74, signatureY + 5);
+
+        context.finalize();
+        doc.save("Acuerdo_Representacion_Velour.pdf");
+      }
+
+      async function generateProposalPdf() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+        const currentDate = formatCurrentDate();
+        const creatorName = getCreatorName();
+        const logoDataUrl = await resolveLogoDataUrl();
+
+        const context = createPdfContext(doc, {
+          currentDate,
+          logoDataUrl,
+          documentLabel: "Propuesta de Representación Exclusiva",
+        });
+
+        context.addNewPage(true);
+        context.writeTitle("PROPUESTA DE REPRESENTACIÓN EXCLUSIVA - VELOUR®");
+        context.writeParagraph("Propuesta Ejecutiva Confidencial");
+        context.writeParagraph("Representación boutique para crecimiento internacional");
+        context.addSpace(8);
+        context.writeSectionTitle(`Presentado para: ${creatorName}`);
+        context.writeParagraph(`Fecha: ${currentDate}`);
+        context.addSpace(10);
+        context.writeParagraph(
+          "Velour® | Firma boutique de representación, operaciones y escalado comercial.",
+          10.2,
+        );
+
+        context.addNewPage(false);
+        context.writeTitle("LA VISIÓN (EL RESULTADO)", 12.6);
+        context.writeParagraph(
+          "Nuestra promesa es clara: alcanzar 3.000€/mes en 90 días y recuperar el 100% de tu tiempo operativo.",
+        );
+        context.writeBullet("Objetivo de posicionamiento: Top 1% en tu categoría.");
+        context.writeBullet("Mercados de alto valor: USA y Europa.");
+        context.writeBullet("Carga diaria estimada para ti: 1-2 horas.");
+        context.writeBullet("Estrategia de escalado sostenible, no dependiente de picos aislados.");
+
+        context.addNewPage(false);
+        context.writeTitle("TU ÚNICO TRABAJO (FRICCIÓN CERO)", 12.6);
+        context.writeParagraph("Tu responsabilidad es una: grabar contenido desde casa siguiendo nuestras guías.");
+        context.writeBullet("Plan de grabación semanal claro y accionable.");
+        context.writeBullet("Guiones, referencias y checklist listos para ejecutar sin fricción.");
+        context.writeBullet("Acompañamiento para mejorar consistencia y calidad de producción.");
+        context.writeBullet("Velour® asume estrategia, ventas, operaciones y backend.");
+
+        context.addNewPage(false);
+        context.writeTitle("LA INFRAESTRUCTURA VELOUR®", 12.6);
+        context.writeParagraph(
+          "Operamos una infraestructura completa de captación, conversión y monetización internacional.",
+        );
+        context.writeBullet("Tráfico internacional con foco en perfiles de alto valor.");
+        context.writeBullet("Estrategias de captación y retención optimizadas de forma continua.");
+        context.writeBullet("Equipo de ventas (chatters) 24/7 operando tu cuenta.");
+        context.writeBullet("Psicología de ventas aplicada para maximizar ticket y recurrencia.");
+        context.writeBullet("Ingresos activos incluso mientras duermes.");
+
+        context.addNewPage(false);
+        context.writeTitle("EL MODELO DE SOCIOS (SPLIT 30/70)", 12.6);
+        context.writeParagraph(
+          "El reparto 30/70 responde a una lógica operativa: Velour® financia y ejecuta toda la infraestructura.",
+        );
+        context.writeBullet("Creadora: 30% de ingresos netos, limpios.");
+        context.writeBullet("Velour®: 70% por asumir la operación completa.");
+        context.writeBullet("Velour® financia sueldos, marketing, software y estructura.");
+        context.writeBullet("Riesgo económico para la creadora: CERO.");
+        context.writeBullet("Sin inversión inicial, sin adelantos y sin riesgo financiero.");
+
+        context.addNewPage(false);
+        context.writeTitle("NUESTRA GARANTÍA", 12.6);
+        context.writeSectionTitle("100% Privacy & Security Guarantee");
+        context.writeBullet("Bloqueo del país natal para proteger identidad y entorno personal.");
+        context.writeBullet("No exposición pública en redes propias de Velour®.");
+        context.writeBullet("Protocolos internos para proteger datos y reputación.");
+        context.addSpace(2);
+        context.writeSectionTitle("Cláusula de salida");
+        context.writeParagraph(
+          "Si en 90 días no se alcanzan resultados medibles, puedes finalizar la colaboración sin penalización.",
+        );
+
+        context.addNewPage(false);
+        context.writeTitle("PRÓXIMOS PASOS (CALL TO ACTION)", 12.6);
+        context.writeParagraph("Si esta propuesta encaja contigo, avanzamos en tres pasos:");
+        context.writeBullet("Agenda una videollamada de 15 minutos.");
+        context.writeBullet("Resolución de dudas y validación de objetivos conjuntos.");
+        context.writeBullet("Revisión del acuerdo formal y plan de arranque.");
+        context.addSpace(5);
+        context.writeSectionTitle("Cierre");
+        context.writeParagraph(
+          "No se trata solo de crecer: se trata de crecer con privacidad, estructura y ejecución profesional. Si te encaja, agenda la llamada y lo activamos.",
+        );
+
+        context.finalize();
+        doc.save("Propuesta_Representacion_Exclusiva_Velour.pdf");
+      }
+
+      async function runGeneration(task) {
+        setButtonsDisabled(true);
+        try {
+          await task();
         } finally {
-          downloadBtn.disabled = false;
+          setButtonsDisabled(false);
         }
       }
 
@@ -600,7 +793,41 @@
         logoElement.style.display = "none";
       };
 
-      downloadBtn.addEventListener("click", generatePdf);
+      downloadAgreementBtn.addEventListener("click", () => {
+        statusText.textContent = "Generando contrato en PDF...";
+        runGeneration(async () => {
+          await generateAgreementPdf();
+          statusText.textContent = "Contrato descargado correctamente.";
+        }).catch((error) => {
+          console.error(error);
+          statusText.textContent = "Error al generar el contrato. Verifica el logo y vuelve a intentarlo.";
+        });
+      });
+
+      downloadProposalBtn.addEventListener("click", () => {
+        statusText.textContent = "Generando propuesta en PDF...";
+        runGeneration(async () => {
+          await generateProposalPdf();
+          statusText.textContent = "Propuesta descargada correctamente.";
+        }).catch((error) => {
+          console.error(error);
+          statusText.textContent = "Error al generar la propuesta. Verifica el logo y vuelve a intentarlo.";
+        });
+      });
+
+      downloadBundleBtn.addEventListener("click", () => {
+        statusText.textContent = "Generando pack completo (2 PDFs)...";
+        runGeneration(async () => {
+          await generateAgreementPdf();
+          await new Promise((resolve) => setTimeout(resolve, 350));
+          await generateProposalPdf();
+          statusText.textContent = "Pack completo descargado correctamente.";
+        }).catch((error) => {
+          console.error(error);
+          statusText.textContent = "Error al generar el pack completo. Verifica el logo y vuelve a intentarlo.";
+        });
+      });
+
       updatePreview();
     </script>
   </body>

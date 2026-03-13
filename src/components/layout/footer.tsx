@@ -1,18 +1,15 @@
 'use client';
 
-import { useCurrentTime } from '@/hooks/use-current-time';
 import { CONTACT_EMAIL, SOCIAL_LINKS, getNavItems } from '@/lib/constants';
 import { getDictionary } from '@/lib/i18n-dictionary';
 import { type Locale } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import { useCurrentTime } from '@/hooks/use-current-time';
 
 const Footer = ({ locale }: { locale: Locale }) => {
   const dict = getDictionary(locale);
   const navItems = getNavItems(locale);
-  const { currentTime, currentLocation } = useCurrentTime(
-    locale,
-    dict.footer.unknownLocation,
-  );
+  const { currentTime, currentLocation } = useCurrentTime(locale, dict.footer.unknownLocation);
 
   return (
     <div className="section-padding pb-0!">
@@ -73,7 +70,9 @@ const Footer = ({ locale }: { locale: Locale }) => {
                 {CONTACT_EMAIL}
               </a>
               <span>
-                {currentTime} · {currentLocation || dict.footer.unknownLocation}
+                <span>{currentTime}</span>{' '}
+                ·{' '}
+                <span>{currentLocation || dict.footer.unknownLocation}</span>
               </span>
             </div>
           </div>

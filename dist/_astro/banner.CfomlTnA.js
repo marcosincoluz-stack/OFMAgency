@@ -1,6 +1,0 @@
-import{j as e}from"./jsx-runtime.D_zvdyIk.js";import{B as t}from"./button.BvlQSLdI.js";import{c as r}from"./utils.CDN07tui.js";import{c as a}from"./createLucideIcon.DlrE_guO.js";import"./index.CaNqD_tN.js";import"./index.CtNveh2g.js";import"./index.DfP4unw-.js";/**
- * @license lucide-react v0.544.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */const n=[["path",{d:"M18 6 6 18",key:"1bl5f8"}],["path",{d:"m6 6 12 12",key:"d8bk6v"}]],i=a("x",n),x=({url:s="https://shadcnblocks.com"})=>e.jsx("div",{className:"bg-primary relative",children:e.jsxs("div",{className:"container flex items-center justify-between gap-4 py-3 pr-12",children:[e.jsxs("div",{className:"flex flex-1 items-center justify-center gap-3 sm:gap-4",children:[e.jsxs("span",{className:"text-primary-foreground text-center text-sm font-medium",children:["Purchase this theme on"," ",e.jsx("span",{className:"font-semibold",children:"shadcnblocks.com"})]}),e.jsx(t,{size:"sm",variant:"secondary",asChild:!0,children:e.jsx("a",{href:s,target:"_blank",children:"Get Template"})})]}),e.jsx("span",{className:r("absolute top-1/2 right-4 -translate-y-1/2 rounded-sm p-1.5","text-primary-foreground/70"),"aria-hidden":"true",children:e.jsx(i,{className:"size-3.5"})})]})});export{x as default};

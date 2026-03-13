@@ -5,19 +5,53 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
 
+const LEGACY_FAVICON_SEGMENTS = ['/dist/favicon/', '/public/favicon/'];
+
+function getCanonicalFaviconPath(urlPath) {
+  for (const segment of LEGACY_FAVICON_SEGMENTS) {
+    const matchIndex = urlPath.indexOf(segment);
+    if (matchIndex !== -1) {
+      const suffix = urlPath.slice(matchIndex + segment.length).replace(/^\/+/, '');
+      return `/favicon/${suffix}`;
+    }
+  }
+  return null;
+}
+
+const legacyFaviconRedirectPlugin = {
+  name: 'legacy-favicon-redirect',
+  configureServer(server) {
+    server.middlewares.use((req, res, next) => {
+      const rawUrl = req.url ?? '';
+      const [urlPath, query = ''] = rawUrl.split('?');
+      const canonicalPath = getCanonicalFaviconPath(urlPath);
+
+      if (canonicalPath) {
+        const redirectUrl = query ? `${canonicalPath}?${query}` : canonicalPath;
+        res.statusCode = 302;
+        res.setHeader('Location', redirectUrl);
+        res.end();
+        return;
+      }
+
+      next();
+    });
+  },
+};
+
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://hive-astro-template.vercel.app',
+  site: 'https://velour.agency',
   integrations: [mdx(), sitemap(), react()],
   devToolbar: {
     enabled: true,
   },
 
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), legacyFaviconRedirectPlugin],
     build: {
-      // Keep dist files during rebuilds to avoid transient ENOENT from parallel dev/build reads.
-      emptyOutDir: false,
+      // Use clean builds so static assets/chunks are not stale between builds.
+      emptyOutDir: true,
     },
     server: {
       watch: {

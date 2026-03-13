@@ -5,6 +5,7 @@ export const UI_DICTIONARY = {
     nav: {
       home: 'Inicio',
       services: 'Servicios',
+      faq: 'FAQ',
       blog: 'Blog',
       work: 'Proyectos',
       studio: 'Nosotros',
@@ -59,7 +60,12 @@ export const UI_DICTIONARY = {
       services: {
         title: 'Servicios | Velour',
         description:
-          'Descubre nuestros servicios de growth, chatters 24/7 y gestion integral en OnlyFans.',
+          'Servicios OFM para convertir mas por DM, retener mejor y escalar tu cuenta de OnlyFans sin improvisar.',
+      },
+      faq: {
+        title: 'FAQ | Velour',
+        description:
+          'Respuestas claras sobre como trabajamos: rol de la modelo, plataformas, pagos, split y tipo de promocion.',
       },
       blocks: {
         title: 'Bloques | Velour',
@@ -76,12 +82,29 @@ export const UI_DICTIONARY = {
       ctaButton: 'Habla con el equipo',
     },
     servicesPage: {
-      heading: 'Servicios',
+      kicker: 'Servicios OFM',
+      heading: 'Menos ruido. Mas ingresos.',
       description:
-        'Gestionamos tu OnlyFans de punta a punta con chatters 24/7, ventas por DM, retencion y foco en monetizacion estable.',
-      testimonialsTitle: 'Resultados reales de creadoras',
-      ctaTitle: 'Si quieres subir ingresos en serio, hablemos.',
-      ctaButton: 'Quiero una auditoria de mi cuenta',
+        'Si te cuesta vender por chat, te da miedo exponerte o no sabes por donde empezar, montamos contigo un sistema claro para crecer en OnlyFans sin improvisar.',
+      painTitle: 'Si te suena esto, te entendemos',
+      painPoints: [
+        'Publicas contenido, pero tus ingresos suben y bajan cada semana.',
+        'Te da corte vender por DM y sientes que pareces pesada cuando hablas de dinero.',
+        'No tienes tiempo para crear, responder, vender y analizar todo a la vez.',
+        'Quieres empezar en OnlyFans, pero te frena el miedo a exponerte o hacerlo mal.',
+      ],
+      servicesTitle: 'Como te ayudamos',
+      servicesDescription:
+        'Cada servicio ataca un cuello de botella real: posicionamiento, conversion por DM, retencion y escalado.',
+      cardCta: 'Ver servicio',
+      fitTitle: 'Esto es para ti si...',
+      fitPoints: [
+        'Quieres convertir tu cuenta en un negocio y no en un experimento.',
+        'Buscas estructura diaria, objetivos claros y seguimiento real de resultados.',
+        'Prefieres un plan directo, sin humo y con ejecucion 24/7.',
+      ],
+      ctaTitle: 'Si encaja con lo que buscas, hablamos 20 minutos y revisamos tu caso.',
+      ctaButton: 'Quiero hablar con el equipo',
     },
     projectsPage: {
       heading: 'Proyectos',
@@ -138,6 +161,7 @@ export const UI_DICTIONARY = {
     nav: {
       home: 'Home',
       services: 'Services',
+      faq: 'FAQ',
       blog: 'Blog',
       work: 'Projects',
       studio: 'Studio',
@@ -192,7 +216,12 @@ export const UI_DICTIONARY = {
       services: {
         title: 'Services | Velour',
         description:
-          'Discover our growth services, 24/7 chatters, and full-stack OnlyFans account operations.',
+          'OFM services to increase DM conversion, improve retention, and scale your OnlyFans with a clear system.',
+      },
+      faq: {
+        title: 'FAQ | Velour',
+        description:
+          'Clear answers about how we work: your role, promotion channels, payments, split, and content approach.',
       },
       blocks: {
         title: 'Blocks | Velour',
@@ -209,12 +238,29 @@ export const UI_DICTIONARY = {
       ctaButton: 'Talk with the team',
     },
     servicesPage: {
-      heading: 'Services',
+      kicker: 'OFM Services',
+      heading: 'Less noise. More revenue.',
       description:
-        'We manage your OnlyFans end-to-end with 24/7 chatters, DM sales, retention, and stable monetization.',
-      testimonialsTitle: 'Real creator results',
-      ctaTitle: 'If you want to scale seriously, let us talk.',
-      ctaButton: 'I want an account audit',
+        'If selling in DMs feels hard, exposure makes you anxious, or you do not know where to start, we build a clear system with you to grow on OnlyFans without chaos.',
+      painTitle: 'If this sounds familiar, you are not alone',
+      painPoints: [
+        'You keep posting, but revenue is still unstable month to month.',
+        'Selling in DMs feels uncomfortable and inconsistent.',
+        'You do not have time to create, reply, sell, and optimize all at once.',
+        'You want to start, but fear and uncertainty keep delaying your launch.',
+      ],
+      servicesTitle: 'How we help',
+      servicesDescription:
+        'Each service solves one real bottleneck: positioning, DM conversion, retention, and scaling.',
+      cardCta: 'View service',
+      fitTitle: 'This is for you if...',
+      fitPoints: [
+        'You want a business, not random spikes.',
+        'You need daily structure, clear KPIs, and accountability.',
+        'You prefer direct execution over motivational talk.',
+      ],
+      ctaTitle: 'If you want to stop improvising, let us talk for 20 minutes.',
+      ctaButton: 'I want my growth plan',
     },
     projectsPage: {
       heading: 'Projects',

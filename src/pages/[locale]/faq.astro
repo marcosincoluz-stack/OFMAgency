@@ -1,0 +1,41 @@
+---
+import { FaqSection } from '@/components/sections/faq';
+import DefaultLayout from '@/layouts/DefaultLayout.astro';
+import { SUPPORTED_LOCALES, isLocale, type Locale } from '@/lib/i18n';
+import { getDictionary } from '@/lib/i18n-dictionary';
+
+export async function getStaticPaths() {
+  return SUPPORTED_LOCALES.map((locale) => ({ params: { locale } }));
+}
+
+const localeParam = Astro.params.locale;
+if (!isLocale(localeParam)) {
+  return Astro.redirect('/es', 302);
+}
+
+const locale: Locale = localeParam;
+const dict = getDictionary(locale);
+
+const heading =
+  locale === 'es'
+    ? 'Dudas y preguntas frecuentes'
+    : 'Frequently asked questions';
+const description =
+  locale === 'es'
+    ? 'Respuestas directas para que sepas como trabajamos, que esperar y si este modelo encaja contigo.'
+    : 'Clear answers so you know how we work, what to expect, and whether this model fits your goals.';
+---
+
+<DefaultLayout
+  locale={locale}
+  title={dict.pages.faq.title}
+  description={dict.pages.faq.description}
+>
+  <section class="section-padding container space-y-4 pb-0!">
+    <p class="text-muted-foreground text-xs font-medium tracking-[0.24em] uppercase">FAQ</p>
+    <h1 class="text-4xl leading-tight md:text-5xl">{heading}</h1>
+    <p class="text-muted-foreground max-w-3xl text-lg">{description}</p>
+  </section>
+  <FaqSection locale={locale} showPageLink={false} />
+</DefaultLayout>
+

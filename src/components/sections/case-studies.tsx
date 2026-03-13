@@ -9,11 +9,13 @@ interface CaseStudiesProps {
 
 export const CaseStudies = ({ projects, locale = 'es' }: CaseStudiesProps) => {
   const caseStudyProjects = projects;
-  if (!caseStudyProjects[0] || !caseStudyProjects[1]) return null;
+  if (!caseStudyProjects[0]) return null;
+  const firstProject = caseStudyProjects[0];
+  const secondProject = caseStudyProjects[1] ?? caseStudyProjects[0];
 
   const firstCarouselProject = {
-    ...caseStudyProjects[0],
-    images: caseStudyProjects[0].images.filter((image) => {
+    ...firstProject,
+    images: firstProject.images.filter((image) => {
       const title = image.title ?? '';
       const isRepositionBySrc = image.src.includes('/images/projects/project-1/2.webp');
       const isRepositionByTitle = /reposicionamiento|repositioning/i.test(title);
@@ -35,8 +37,8 @@ export const CaseStudies = ({ projects, locale = 'es' }: CaseStudiesProps) => {
     }),
   };
   const secondCarouselProject = {
-    ...caseStudyProjects[1],
-    images: caseStudyProjects[1].images.filter((image) => {
+    ...secondProject,
+    images: secondProject.images.filter((image) => {
       const title = image.title ?? '';
       const isTopGlobalBySrc = /\/images\/projects\/project-1\/new[-.]one\.webp$/i.test(
         image.src,

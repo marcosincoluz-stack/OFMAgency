@@ -23,46 +23,58 @@ function isBypassPath(pathname: string) {
   return false;
 }
 
+function getCanonicalFaviconPath(pathname: string) {
+  const legacySegments = ['/dist/favicon/', '/public/favicon/'];
+  for (const segment of legacySegments) {
+    const matchIndex = pathname.indexOf(segment);
+    if (matchIndex !== -1) {
+      const suffix = pathname.slice(matchIndex + segment.length).replace(/^\/+/, '');
+      return `/favicon/${suffix}`;
+    }
+  }
+  return null;
+}
+
 function isMarket(value?: string | null): value is Market {
   return value === 'es' || value === 'latam' || value === 'global';
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const { url, request, cookies } = context;
+  const { url, cookies } = context;
   const pathname = url.pathname;
-  const isPrerendered = context.isPrerendered ?? false;
+  const isPrerendered = import.meta.env.SSR || (context.isPrerendered ?? false);
+
+  // Legacy/stale asset paths observed in dev sessions.
+  const canonicalFaviconPath = getCanonicalFaviconPath(pathname);
+  if (canonicalFaviconPath) {
+    return context.redirect(canonicalFaviconPath, 301);
+  }
 
   const pathLocale = getLocaleFromPath(pathname);
-  const cookieLocale = cookies.get('locale')?.value;
-  const acceptLanguage = isPrerendered
-    ? null
-    : request.headers.get('accept-language');
-  const detectedLocale = detectLocaleFromAcceptLanguage(
-    acceptLanguage,
-  );
+  const cookieLocale = isPrerendered ? undefined : cookies.get('locale')?.value;
+  const detectedLocale = detectLocaleFromAcceptLanguage(null);
 
   const resolvedLocale: Locale = isLocale(cookieLocale)
     ? cookieLocale
     : pathLocale || detectedLocale || DEFAULT_LOCALE;
 
   const marketOverrideQuery = url.searchParams.get('market');
-  const marketOverrideCookie = cookies.get('market_override')?.value;
+  const marketOverrideCookie = isPrerendered ? undefined : cookies.get('market_override')?.value;
 
   let market: Market;
   if (isMarket(marketOverrideQuery)) {
     market = marketOverrideQuery;
-    cookies.set('market_override', marketOverrideQuery, {
-      path: '/',
-      maxAge: ONE_WEEK,
-      sameSite: 'lax',
-    });
+    if (!isPrerendered) {
+      cookies.set('market_override', marketOverrideQuery, {
+        path: '/',
+        maxAge: ONE_WEEK,
+        sameSite: 'lax',
+      });
+    }
   } else if (isMarket(marketOverrideCookie)) {
     market = marketOverrideCookie;
   } else {
-    const countryCode = isPrerendered
-      ? null
-      : request.headers.get('x-vercel-ip-country');
-    market = resolveMarket(countryCode);
+    market = resolveMarket(null);
   }
 
   context.locals.locale = pathLocale || resolvedLocale;
@@ -86,7 +98,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const response = await next();
 
-  if (pathLocale && cookies.get('locale')?.value !== pathLocale) {
+  if (!isPrerendered && pathLocale && cookies.get('locale')?.value !== pathLocale) {
     cookies.set('locale', pathLocale, {
       path: '/',
       maxAge: ONE_YEAR,
